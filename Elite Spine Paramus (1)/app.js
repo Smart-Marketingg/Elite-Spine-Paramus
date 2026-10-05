@@ -134,6 +134,44 @@
     });
   }
 
+  // ---------- Lead source tracking (UTM + session source) ----------
+  // Session = what brought the visitor this visit (sessionStorage).
+  // First touch = how they first found the site (localStorage, 90 days).
+  const ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'gbraid', 'wbraid', 'fbclid', 'msclkid'];
+  const ATTR_SESSION = 'es_attr_session';
+  const ATTR_FIRST = 'es_attr_first';
+  function readStore(store, key) { try { return JSON.parse(store.getItem(key) || 'null'); } catch (_) { return null; } }
+  function writeStore(store, key, v) { try { store.setItem(key, JSON.stringify(v)); } catch (_) {} }
+  (function captureAttribution() {
+    const p = new URLSearchParams(location.search);
+    const tags = {};
+    ATTR_KEYS.forEach((k) => { const v = p.get(k); if (v) tags[k] = v.slice(0, 200); });
+    let ref = '';
+    try { if (document.referrer && new URL(document.referrer).hostname !== location.hostname) ref = document.referrer.slice(0, 300); } catch (_) {}
+    let session = readStore(sessionStorage, ATTR_SESSION);
+    if (!session || Object.keys(tags).length) {
+      session = Object.assign({}, tags, { referrer: ref || (session && session.referrer) || '', landing_page: location.pathname, at: new Date().toISOString() });
+      writeStore(sessionStorage, ATTR_SESSION, session);
+    }
+    const first = readStore(localStorage, ATTR_FIRST);
+    if (!first || Date.now() - new Date(first.at).getTime() > 90 * 864e5) writeStore(localStorage, ATTR_FIRST, session);
+  })();
+  function firstTouchLabel(a) {
+    if (!a) return '';
+    if (a.gclid || a.gbraid || a.wbraid) return 'google / cpc (gclid)';
+    if (a.utm_source || a.utm_medium) return (a.utm_source || '(none)') + ' / ' + (a.utm_medium || '(none)') + (a.utm_campaign ? ' / ' + a.utm_campaign : '');
+    if (a.referrer) { try { return new URL(a.referrer).hostname.replace(/^www\./, '') + ' / referral'; } catch (_) {} }
+    return '(direct)';
+  }
+  function appendAttribution(data) {
+    const s = readStore(sessionStorage, ATTR_SESSION) || {};
+    const f = readStore(localStorage, ATTR_FIRST);
+    ATTR_KEYS.forEach((k) => { if (s[k]) data.append(k, s[k]); });
+    data.append('referrer', s.referrer || '');
+    data.append('landing_page', s.landing_page || location.pathname);
+    if (f) { data.append('first_touch', firstTouchLabel(f)); data.append('first_seen', f.at || ''); }
+  }
+
   function sendToSheet(form, token) {
     if (!SHEET_ENDPOINT) return Promise.resolve();
     const data = new URLSearchParams();
@@ -144,12 +182,32 @@
     new FormData(form).forEach((value, key) => {
       if (key.charAt(0) !== '_') data.append(key, value);
     });
+    appendAttribution(data);
     return fetch(SHEET_ENDPOINT, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
       body: data.toString()
     });
+  }
+
+  // Also store the lead in the secure admin portal (Cloudflare D1 via /api/lead).
+  function sendToBackend(form, token) {
+    if (!/^https?:$/.test(location.protocol)) return Promise.resolve();
+    const data = new URLSearchParams();
+    data.append('_tab', form.getAttribute('data-sheet-tab') || 'Submissions');
+    data.append('_source', location.pathname.split('/').pop() || 'index.html');
+    if (token) data.append('_recaptcha', token);
+    new FormData(form).forEach((value, key) => {
+      if (key.charAt(0) !== '_') data.append(key, value);
+    });
+    appendAttribution(data);
+    return fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: data.toString(),
+      keepalive: true
+    }).catch(() => {});
   }
 
   // Appointment / contact form validation (handles every form on the page)
@@ -215,7 +273,9 @@
       // Get a reCAPTCHA token (no-op if not configured), then send to Sheet.
       const action = (form.getAttribute('data-sheet-tab') || 'submit').replace(/\W+/g, '_');
       getRecaptchaToken(action)
-        .then((token) => sendToSheet(form, token))
+        // reCAPTCHA tokens are single-use, so each destination gets its own.
+        .then((token) => getRecaptchaToken(action).then((token2) =>
+          Promise.allSettled([sendToSheet(form, token), sendToBackend(form, token2)])))
         .then(done)
         .catch(done);
     });
