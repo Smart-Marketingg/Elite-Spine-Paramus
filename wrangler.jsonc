@@ -1,1 +1,40 @@
-{"name":"elite-spine-paramus","compatibility_date":"2026-06-24","assets":{"directory":"./Elite Spine Paramus (1)"}}
+{
+  // Must match the Worker's name in the Cloudflare dashboard exactly.
+  "name": "elite-spine-paramus",
+  // The site lives in the "Elite Spine Paramus (1)" folder of the repo, so both paths point there.
+  "main": "./Elite Spine Paramus (1)/worker/index.js",
+  "compatibility_date": "2026-09-01",
+
+  "assets": {
+    "directory": "./Elite Spine Paramus (1)",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/media/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "elitespine",
+      // D1 database "elitespine" (created Oct 5, 2026)
+      "database_id": "2333dea3-b324-434d-905f-c5fb4ad9b534"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "elitespine-media" }
+  ],
+
+  // Monday 13:00 UTC (9 AM EDT / 8 AM EST): AI Writer checks Google posts.
+  // Use MON, not 1: Cloudflare counts 1 as Sunday.
+  "triggers": { "crons": ["0 13 * * MON"] },
+
+  // Plain settings only. Put API keys in the dashboard as Secrets (they survive deploys).
+  "vars": {
+    "SITE_URL": "https://www.elitespineparamus.com",
+    "SUPER_ADMINS": "jullien@smartmarketingg.com"
+  },
+
+  "observability": { "enabled": true }
+}

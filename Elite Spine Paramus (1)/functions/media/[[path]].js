@@ -2,7 +2,7 @@
 export async function onRequestGet({ env, params }) {
   if (!env.MEDIA) return new Response('Not found', { status: 404 });
   const key = (Array.isArray(params.path) ? params.path.join('/') : params.path) || '';
-  if (!key.startsWith('blog/')) return new Response('Not found', { status: 404 });
+  if (!key.startsWith('blog/') && !key.startsWith('ai/')) return new Response('Not found', { status: 404 });
   const obj = await env.MEDIA.get(key);
   if (!obj) return new Response('Not found', { status: 404 });
   const h = new Headers();
