@@ -35,6 +35,7 @@ import * as aiWrite from '../functions/api/admin/ai/write.js';
 import * as aiReview from '../functions/api/admin/ai/review.js';
 import * as gbpConnect from '../functions/api/admin/gbp/connect.js';
 import * as gbpLocation from '../functions/api/admin/gbp/location.js';
+import * as analytics from '../functions/api/admin/analytics.js';
 
 import { getAiSettings, runWeekly } from '../functions/_lib/ai.js';
 
@@ -70,6 +71,7 @@ const ROUTES = [
   ['/api/admin/ai/review', aiReview],
   ['/api/admin/gbp/connect', gbpConnect],
   ['/api/admin/gbp/location', gbpLocation],
+  ['/api/admin/analytics', analytics],
   ['/media/[[path]]', media]
 ].map(([pattern, mod]) => ({ parts: pattern.split('/').filter(Boolean), mod }));
 
