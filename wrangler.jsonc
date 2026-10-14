@@ -1,3 +1,42 @@
-// CRM backend paused: worker/index.js imports functions/api/* and functions/admin/* files that are not in the repo, which broke every build.
-// To re-enable the CRM, upload those files, then restore the full config from commit a28afef ("CRM setup").
-{"name":"elite-spine-paramus","compatibility_date":"2026-06-24","assets":{"directory":"./Elite Spine Paramus (1)"}}
+{
+  // The site, worker/ and functions/ all live in the "Elite Spine Paramus (1)" folder.
+  // Must match the Worker's name in the Cloudflare dashboard EXACTLY.
+  // If your repo already has a wrangler.toml / wrangler.json, copy its "name" here and delete that file.
+  "name": "elite-spine-paramus",
+  "main": "./Elite Spine Paramus (1)/worker/index.js",
+  "compatibility_date": "2026-09-01",
+
+  "assets": {
+    "directory": "./Elite Spine Paramus (1)",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/media/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "elitespine",
+      // Cloudflare → Storage & Databases → D1 → elitespine → copy "Database ID"
+      "database_id": "2333dea3-b324-434d-905f-c5fb4ad9b534"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "elitespine-media" }
+  ],
+
+  // Monday 13:00 UTC (9 AM EDT / 8 AM EST): AI Writer checks Google posts.
+  "triggers": { "crons": ["0 13 * * MON"] },
+
+  // Plain settings only. Put API keys in the dashboard as Secrets (they survive deploys).
+  "vars": {
+    "SITE_URL": "https://www.elitespineparamus.com",
+    "SUPER_ADMINS": "jullien@smartmarketingg.com",
+    // Google Analytics 4 property. The service-account key is the Cloudflare Secret GA_SERVICE_ACCOUNT (never in this file).
+    "GA4_PROPERTY_ID": "529168761"
+  },
+
+  "observability": { "enabled": true }
+}
