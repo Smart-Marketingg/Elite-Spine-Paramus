@@ -98,7 +98,8 @@
     aiWrite: (b) => req('POST', '/api/admin/ai/write', b),
     aiReview: (id, action) => req('POST', '/api/admin/ai/review', { id, action }),
     gbpConnect: () => req('POST', '/api/admin/gbp/connect'),
-    gbpLocation: (b) => req('POST', '/api/admin/gbp/location', b)
+    gbpLocation: (b) => req('POST', '/api/admin/gbp/location', b),
+    analytics: (p) => req('GET', '/api/admin/analytics?' + qs(p))
   };
 
   // Sign-in calls (no session needed). Errors come back as readable messages.
@@ -139,7 +140,7 @@
       ],
       users: [
         { email: 'elitespineparamus@gmail.com', name: 'Elite Spine Paramus (owner)', leads: 'manage', blog: 'publish', users: 0, setup: 1, source: 1, joined: 1, active: 1, created_at: h(400), created_by: 'setup', last_seen: h(3) },
-        { email: 'frontdesk@example.com', name: 'Sample Front Desk', leads: 'manage', blog: 'none', users: 0, setup: 0, source: 0, joined: 1, active: 1, created_at: h(300), created_by: SUPER, last_seen: h(1) },
+        { email: 'frontdesk@example.com', name: 'Sample Front Desk', leads: 'manage', blog: 'none', users: 0, setup: 0, source: 0, off: ['analytics', 'ai'], joined: 1, active: 1, created_at: h(300), created_by: SUPER, last_seen: h(1) },
         { email: 'writer@example.com', name: 'Sample Writer', leads: 'none', blog: 'write', users: 0, setup: 0, source: 1, joined: 0, invite_expires: new Date(Date.now() + 5 * 864e5).toISOString(), active: 1, created_at: h(48), created_by: SUPER, last_seen: null }
       ],
       leads: [
@@ -266,9 +267,9 @@
     deletePost(id) { const d = db.get(); d.posts = d.posts.filter(x => x.id !== id); db.set(d); return wait({ ok: true }); },
     me() {
       const d = db.get();
-      if (d.as === SUPER) return wait({ email: SUPER, name: 'Jullien', super: true, hasPassword: true, perms: { leads: 'manage', blog: 'publish', users: true, setup: true, source: true } });
+      if (d.as === SUPER) return wait({ email: SUPER, name: 'Jullien', super: true, hasPassword: true, perms: { leads: 'manage', blog: 'publish', users: true, setup: true, source: true, off: [] } });
       const u = d.users.find(x => x.email === d.as) || d.users[0];
-      return wait({ email: u.email, name: u.name, super: false, hasPassword: !!u.joined, perms: { leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: u.source !== 0 } });
+      return wait({ email: u.email, name: u.name, super: false, hasPassword: !!u.joined, perms: { leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: u.source !== 0, off: u.off || [] } });
     },
     users() { return wait({ supers: [SUPER], users: db.get().users }); },
     addUser(u) {
@@ -276,13 +277,13 @@
       const email = String(u.email || '').trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Promise.reject(new Error('Enter a valid email address.'));
       if (email === SUPER || d.users.some(x => x.email === email)) return Promise.reject(new Error('That email already has access.'));
-      d.users.push({ email, name: u.name || '', leads: u.leads, blog: u.blog, users: u.users ? 1 : 0, setup: u.setup ? 1 : 0, source: d.as === SUPER ? (u.source === false ? 0 : 1) : 1, joined: 0, invite_expires: new Date(Date.now() + 7 * 864e5).toISOString(), active: 1, created_at: new Date().toISOString(), created_by: d.as, last_seen: null });
+      d.users.push({ email, name: u.name || '', leads: u.leads, blog: u.blog, users: u.users ? 1 : 0, setup: u.setup ? 1 : 0, source: d.as === SUPER ? (u.source === false ? 0 : 1) : 1, off: d.as === SUPER ? (u.off || []) : [], joined: 0, invite_expires: new Date(Date.now() + 7 * 864e5).toISOString(), active: 1, created_at: new Date().toISOString(), created_by: d.as, last_seen: null });
       db.set(d); return wait({ ok: true, inviteUrl: location.origin + location.pathname + location.search + '#set=demo-invite~' + encodeURIComponent(email), emailed: false, emailError: 'Demo mode, no email is sent.' });
     },
     updateUser(email, u) {
       const d = db.get();
       if (email === d.as && !u.users) return Promise.reject(new Error('You can’t remove your own user-management access.'));
-      d.users = d.users.map(x => x.email === email ? { ...x, name: u.name, leads: u.leads, blog: u.blog, users: u.users ? 1 : 0, setup: u.setup ? 1 : 0, source: d.as === SUPER ? (u.source === false ? 0 : 1) : x.source, active: u.active === false ? 0 : 1 } : x);
+      d.users = d.users.map(x => x.email === email ? { ...x, name: u.name, leads: u.leads, blog: u.blog, users: u.users ? 1 : 0, setup: u.setup ? 1 : 0, source: d.as === SUPER ? (u.source === false ? 0 : 1) : x.source, off: d.as === SUPER ? (u.off || []) : (x.off || []), active: u.active === false ? 0 : 1 } : x);
       db.set(d); return wait({ ok: true });
     },
     resendInvite(email) {
@@ -333,6 +334,7 @@
     return { id, slug, title: draft.title, published: auto };
   }
   Object.assign(demo, {
+    analytics: (p) => wait(window.AdminAnalytics.demo(p)),
     ai() {
       const d = db.get();
       return wait({ settings: d.ai.settings, canEdit: canDo('blog', 'publish'),
@@ -407,16 +409,22 @@
   const ORDER = { leads: ['none', 'view', 'manage'], blog: ['none', 'write', 'publish'] };
   function canDo(area, lvl) {
     if (!me) return false;
-    if (area === 'users') return !!me.perms.users;
-    if (area === 'setup') return !!me.perms.setup;
-    if (area === 'source') return !!me.perms.source;
-    return ORDER[area].indexOf(me.perms[area]) >= ORDER[area].indexOf(lvl);
+    const p = me.perms, on = (k) => me.super || !(p.off || []).includes(k);
+    const at = (a, l) => ORDER[a].indexOf(p[a]) >= ORDER[a].indexOf(l);
+    if (area === 'users') return !!p.users && on('users');
+    if (area === 'pipelines' || area === 'replies') return !!p.setup && on(area);
+    if (area === 'setup') return !!p.setup && (on('pipelines') || on('replies'));
+    if (area === 'source') return !!p.source;
+    if (area === 'ai') return on('ai') && at('blog', lvl || 'write');
+    if (area === 'analytics') return on('analytics') && at('leads', 'view') && !!p.source;
+    return on(area) && at(area, lvl);
   }
-  const VIEWS = ['leads', 'blog', 'ai', 'pipelines', 'replies', 'users'];
-  const allowed = (v) => v === 'leads' ? canDo('leads', 'view') : (v === 'blog' || v === 'ai') ? canDo('blog', 'write') : v === 'users' ? canDo('users') : (v === 'pipelines' || v === 'replies') ? canDo('setup') : false;
+  const VIEWS = ['leads', 'analytics', 'blog', 'ai', 'pipelines', 'replies', 'users'];
+  const allowed = (v) => v === 'leads' ? canDo('leads', 'view') : v === 'blog' ? canDo('blog', 'write') : VIEWS.includes(v) ? canDo(v) : false;
   const ROLE_TXT = { leads: { view: 'Leads (view)', manage: 'Leads' }, blog: { write: 'Blog (drafts)', publish: 'Blog' } };
   function roleText(p) {
     const parts = [ROLE_TXT.leads[p.leads] ? ROLE_TXT.leads[p.leads] + (p.source ? '' : ' (no source)') : '', ROLE_TXT.blog[p.blog], p.setup ? 'Setup' : '', p.users ? 'Users' : ''].filter(Boolean);
+    if ((p.off || []).length) parts.push((p.off || []).length + ' hidden');
     return parts.length ? parts.join(' · ') : 'No access';
   }
 
@@ -661,6 +669,7 @@
     if (v === 'leads') { if (!$('#leadList')) leadsShell(); loadLeads(); }
     else if (v === 'blog') { if (window.AdminBlog) window.AdminBlog.route(rest); }
     else if (v === 'ai') { if (window.AdminAI) window.AdminAI.render(); }
+    else if (v === 'analytics') { if (window.AdminAnalytics) window.AdminAnalytics.render(); }
     else if (v === 'pipelines') { if (window.AdminPipelines) window.AdminPipelines.render(); }
     else if (v === 'replies') { if (window.AdminReplies) window.AdminReplies.render(); }
     else if (window.AdminUsers) window.AdminUsers.render();
