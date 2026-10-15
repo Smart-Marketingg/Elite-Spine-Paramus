@@ -1,0 +1,17 @@
+# Never commit secrets or local tooling
+.env
+.env.*
+.dev.vars
+.wrangler/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Setup files stay out of the public website (they'd be downloadable)
+*.sql
+*.md
+*.gs
+cron-worker/
+backend/
+uploads/

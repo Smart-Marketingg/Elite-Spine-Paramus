@@ -204,3 +204,13 @@ button.chip:disabled{opacity:.4;cursor:not-allowed}
 .airec a.pill{text-decoration:none}
 #sMode button{white-space:nowrap}
 @media (max-width:1240px){.aistats{grid-template-columns:1fr}.aigrid{grid-template-columns:1fr}.aiset{position:static}}
+
+/* per-person sidebar sections (super admin) */
+.utable tr.has-side td{border-bottom:0}
+.utable tr.uside td{padding-top:0}
+.uside__row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.uside__label{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.uside__chips{display:flex;flex-wrap:wrap;gap:6px}
+.uside__add{grid-column:1 / -1}
+.uside__add .uside__chips{margin-top:6px}
+@media (max-width:1240px){.utable tr.uside{display:block;padding:0 16px 14px;margin-top:-6px}.utable tr.uside td{display:block}.utable tr.has-side{border-bottom:0}}

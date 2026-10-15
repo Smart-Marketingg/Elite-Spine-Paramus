@@ -1,0 +1,12 @@
+name = "elitespine-weekly"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# Every Monday at 13:00 UTC (9:00 AM Eastern in summer, 8:00 AM in winter).
+[triggers]
+crons = ["0 13 * * 1"]
+
+[vars]
+SITE_URL = "https://www.elitespineparamus.com"
+
+# Secret (set with: npx wrangler secret put CRON_SECRET) must match CRON_SECRET on the Pages site.

@@ -1,0 +1,23 @@
+# Never publish these as website files
+functions
+worker
+wrangler.jsonc
+wrangler.json
+wrangler.toml
+.assetsignore
+.gitignore
+.git
+.github
+.wrangler
+node_modules
+.dev.vars
+.env*
+backend
+cron-worker
+cron-worker-deploy
+private-setup-kit
+google-apps-script
+uploads
+*.md
+*.sql
+*.gs

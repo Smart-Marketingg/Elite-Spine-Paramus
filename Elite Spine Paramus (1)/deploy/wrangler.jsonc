@@ -1,0 +1,41 @@
+{
+  // Must match the Worker's name in the Cloudflare dashboard EXACTLY.
+  // If your repo already has a wrangler.toml / wrangler.json, copy its "name" here and delete that file.
+  "name": "REPLACE-WITH-YOUR-WORKER-NAME",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/media/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "elitespine",
+      // Cloudflare → Storage & Databases → D1 → elitespine → copy "Database ID"
+      "database_id": "REPLACE-WITH-D1-DATABASE-ID"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "elitespine-media" }
+  ],
+
+  // Monday 13:00 UTC (9 AM EDT / 8 AM EST): AI Writer checks Google posts.
+  "triggers": { "crons": ["0 13 * * MON"] },
+
+  // Plain settings only. Put API keys in the dashboard as Secrets (they survive deploys).
+  "vars": {
+    "SITE_URL": "https://www.elitespineparamus.com",
+    "SUPER_ADMINS": "jullien@smartmarketingg.com",
+    // Google Analytics 4 property. The service-account key is the Cloudflare Secret GA_SERVICE_ACCOUNT (never in this file).
+    "GA4_PROPERTY_ID": "529168761"
+  },
+
+  "observability": { "enabled": true }
+}
