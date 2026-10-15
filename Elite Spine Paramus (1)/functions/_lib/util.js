@@ -16,6 +16,28 @@ export const LEAD_STATUSES = ['new', 'contacted', 'booked', 'closed'];
 export const LEVELS = { leads: ['none', 'view', 'manage'], blog: ['none', 'write', 'publish'] };
 const SUPER_DEFAULT = 'jullien@smartmarketingg.com';
 
+// Sidebar sections a super admin can switch off per person (users.off, JSON array).
+// Hidden sections disappear from that person's portal AND their API calls are refused (see sectionFor).
+export const SECTIONS = ['leads', 'analytics', 'blog', 'ai', 'pipelines', 'replies', 'users'];
+export function parseOff(v) {
+  let a = v;
+  if (typeof a === 'string') { try { a = JSON.parse(a); } catch (_) { a = []; } }
+  return Array.isArray(a) ? [...new Set(a.filter(x => SECTIONS.includes(x)))] : [];
+}
+// Which sidebar section an admin API request belongs to (null = always allowed, e.g. /me, /password).
+export function sectionFor(path, method) {
+  const p = path.replace(/\/+$/, '');
+  if (p === '/api/admin/leads' || p.startsWith('/api/admin/leads/')) return 'leads';
+  if (p === '/api/admin/analytics') return 'analytics';
+  if (p === '/api/admin/posts' || p.startsWith('/api/admin/posts/') || p === '/api/admin/upload') return 'blog';
+  if (p === '/api/admin/ai' || p.startsWith('/api/admin/ai/') || p.startsWith('/api/admin/gbp/')) return 'ai';
+  // Reading pipelines is also needed by the Auto-replies screen; only changes count as "Pipelines".
+  if (p === '/api/admin/pipelines') return method === 'GET' ? null : 'pipelines';
+  if (p === '/api/admin/autoreplies' || p.startsWith('/api/admin/autoreplies/')) return 'replies';
+  if (p === '/api/admin/users' || p.startsWith('/api/admin/users/') || p === '/api/admin/invite') return 'users';
+  return null;
+}
+
 export function superAdmins(env) {
   return String(env.SUPER_ADMINS || SUPER_DEFAULT).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 }
@@ -24,12 +46,12 @@ export async function loadUser(env, email) {
   email = String(email || '').toLowerCase();
   if (!email) return null;
   if (superAdmins(env).includes(email)) {
-    return { email, name: 'Super admin', super: true, leads: 'manage', blog: 'publish', users: true, setup: true, source: true };
+    return { email, name: 'Super admin', super: true, leads: 'manage', blog: 'publish', users: true, setup: true, source: true, off: [] };
   }
-  const u = await env.DB.prepare('SELECT email, name, leads, blog, users, setup, source FROM users WHERE email = ? AND active = 1').bind(email).first();
+  const u = await env.DB.prepare('SELECT email, name, leads, blog, users, setup, source, off FROM users WHERE email = ? AND active = 1').bind(email).first();
   if (!u) return null;
   env.DB.prepare(`UPDATE users SET last_seen = strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE email = ?`).bind(email).run().catch(() => {});
-  return { email: u.email, name: u.name, super: false, leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: !!u.source };
+  return { email: u.email, name: u.name, super: false, leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: !!u.source, off: parseOff(u.off) };
 }
 
 export function can(user, area, level) {

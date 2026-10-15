@@ -1,4 +1,4 @@
-import { json, audit, can, forbidden, clip, superAdmins, LEVELS } from '../../_lib/util.js';
+import { json, audit, can, forbidden, clip, superAdmins, LEVELS, parseOff } from '../../_lib/util.js';
 import { createLink, linkUrl, inviteEmail } from '../../_lib/auth.js';
 import { sendEmail } from '../../_lib/automation.js';
 
@@ -11,7 +11,8 @@ export function normalizeUser(b) {
     blog: LEVELS.blog.includes(b.blog) ? b.blog : 'none',
     users: b.users ? 1 : 0,
     setup: b.setup ? 1 : 0,
-    source: b.source === false || b.source === 0 ? 0 : 1
+    source: b.source === false || b.source === 0 ? 0 : 1,
+    off: JSON.stringify(parseOff(b.off))
   };
 }
 
@@ -28,14 +29,14 @@ export async function onRequestGet({ env, data }) {
   if (!can(data.user, 'users')) return forbidden();
   const supers = superAdmins(env);
   const r = await env.DB.prepare(
-    `SELECT email, name, leads, blog, users, setup, source, active, created_at, created_by, last_seen,
+    `SELECT email, name, leads, blog, users, setup, source, off, active, created_at, created_by, last_seen,
        (password_hash IS NOT NULL) AS joined,
        (SELECT MAX(expires_at) FROM auth_tokens t WHERE t.email = users.email AND t.kind = 'invite' AND t.used_at IS NULL) AS invite_expires
      FROM users WHERE email NOT IN (${supers.map(() => '?').join(',')}) ORDER BY created_at`
   ).bind(...supers).all();
   const last = await env.DB.prepare(`SELECT email, MAX(last_seen) AS seen FROM sessions GROUP BY email`).all();
   const seen = Object.fromEntries(last.results.map(x => [x.email, x.seen]));
-  return json({ supers, users: r.results.map(u => ({ ...u, joined: !!u.joined, last_seen: seen[u.email] || u.last_seen })) });
+  return json({ supers, users: r.results.map(u => ({ ...u, off: parseOff(u.off), joined: !!u.joined, last_seen: seen[u.email] || u.last_seen })) });
 }
 
 export async function onRequestPost({ request, env, data }) {
@@ -45,15 +46,15 @@ export async function onRequestPost({ request, env, data }) {
   if (!EMAIL.test(email)) return json({ error: 'Enter a valid email address.' }, 400);
   if (superAdmins(env).includes(email)) return json({ error: 'That person is already a super admin.' }, 409);
   const u = normalizeUser(b);
-  if (!data.user.super) u.source = 1; // only super admins decide who can't see lead sources
+  if (!data.user.super) { u.source = 1; u.off = '[]'; } // only super admins decide lead-source visibility and hidden sections
   try {
-    await env.DB.prepare('INSERT INTO users (email, name, leads, blog, users, setup, source, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-      .bind(email, u.name, u.leads, u.blog, u.users, u.setup, u.source, data.user.email).run();
+    await env.DB.prepare('INSERT INTO users (email, name, leads, blog, users, setup, source, off, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(email, u.name, u.leads, u.blog, u.users, u.setup, u.source, u.off, data.user.email).run();
   } catch (e) {
     if (String(e).includes('UNIQUE') || String(e).includes('PRIMARY')) return json({ error: 'That email already has access.' }, 409);
     throw e;
   }
   const inv = await sendInvite(env, request, email, u.name, data.user);
-  await audit(env, data.user.email, 'user.invite', `${email} leads=${u.leads} blog=${u.blog} users=${u.users} emailed=${inv.emailed}`);
+  await audit(env, data.user.email, 'user.invite', `${email} leads=${u.leads} blog=${u.blog} users=${u.users} off=${u.off} emailed=${inv.emailed}`);
   return json({ ok: true, ...inv });
 }

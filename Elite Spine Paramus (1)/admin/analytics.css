@@ -1,0 +1,59 @@
+/* Analytics view */
+.an-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;padding:14px 16px;margin-bottom:16px}
+.an-bar .field{margin:0;min-width:150px;flex:1 1 150px}
+.an-bar .field label{margin-bottom:5px}
+.an-bar #anRefresh{height:40px;width:40px;padding:0;flex:0 0 auto}
+.an-bar #anRefresh svg{width:16px;height:16px}
+#anBody{transition:opacity .2s}
+#anBody.is-loading{opacity:.45;pointer-events:none}
+.an-range{margin:0 0 12px;font-weight:700;color:var(--ink0);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.an-range span{color:var(--ink3);font-weight:600}
+.an-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.an-kpi{padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.an-kpi__l{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3)}
+.an-kpi strong{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.1;color:var(--ink0)}
+.an-kpi__f{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:12.5px;color:var(--ink2)}
+.an-chg{font-weight:700;color:var(--ink3);font-size:12.5px}
+.an-chg.is-up{color:var(--green)}
+.an-chg.is-down{color:var(--red)}
+.an-card{padding:18px 20px;margin-bottom:16px;min-width:0}
+.an-card__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.an-card__h h2{font-family:var(--serif);font-weight:500;font-size:21px;margin:0}
+.an-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+.an-legend span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.an-legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+.an-legend i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+#anChartBox{width:100%;min-height:240px}
+.an-chart{display:block;max-width:100%;overflow:visible}
+.an-chart .g{stroke:var(--line);stroke-width:1}
+.an-chart text{fill:var(--ink3);font-size:11px;font-family:inherit}
+.an-chart .ss{fill:none;stroke:#ff6a1a;stroke-width:2.5;stroke-linejoin:round}
+.an-chart .us{fill:none;stroke:#6aa7ff;stroke-width:1.8;stroke-linejoin:round}
+.an-chart .pv{fill:none;stroke:#95a0b3;stroke-width:1.5;stroke-dasharray:5 4;}
+.an-insight p{margin:0;color:var(--ink1);font-size:14.5px;line-height:1.6;max-width:90ch}
+.an-insight h3{margin:16px 0 6px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.an-insight ul{margin:0;padding-left:18px;color:var(--ink1);font-size:14px;line-height:1.55}
+.an-insight li{margin-bottom:6px}
+.an-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:6px}
+.an-grid .an-card{margin:0}
+.an-t{width:100%}
+.an-t th.num,.an-t td.num{text-align:right;white-space:nowrap}
+.an-t td{vertical-align:middle}
+.an-trunc{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.an-low{color:var(--red)}
+.an-star{color:#f4c14a}
+.an-none{margin:6px 0}
+.an-bar-s{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden;max-width:220px}
+.an-bar-s i{display:block;height:100%;background:var(--c)}
+.an-dev{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.an-dev > div{display:grid;grid-template-columns:70px minmax(0,1fr) 44px 90px;gap:10px;align-items:center;font-size:13px}
+.an-dev .an-bar-s{margin:0;max-width:none;height:6px}
+.an-dev b{text-align:right}
+.an-dev em{font-style:normal;color:var(--ink3);font-size:12px}
+.an-setup{padding:22px 24px;max-width:760px}
+.an-setup h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:0 0 8px}
+.an-setup p,.an-setup ol{color:var(--ink1);font-size:14px;line-height:1.6}
+.an-setup code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-size:12.5px}
+@media (max-width:1240px){.an-grid{grid-template-columns:1fr}}
+@media (max-width:900px){.an-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.an-kpi strong{font-size:25px}}
+@media (max-width:560px){.an-bar .field{flex-basis:100%}.an-trunc{max-width:170px}.an-dev > div{grid-template-columns:60px minmax(0,1fr) 40px}.an-dev em{display:none}}

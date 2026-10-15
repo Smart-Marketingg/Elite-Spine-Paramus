@@ -14,16 +14,16 @@ export async function onRequestPut({ request, env, params, data }) {
   const u = normalizeUser(b);
   if (t.email === data.user.email && !u.users) return forbidden('You can’t remove your own user-management access.');
   const active = b.active === false ? 0 : 1;
-  // Only super admins can change who sees lead sources; others keep the current value.
+  // Only super admins can change lead-source visibility and hidden sections; others keep the current values.
   if (!data.user.super) {
-    const cur = await env.DB.prepare('SELECT source FROM users WHERE email = ?').bind(t.email).first();
-    if (cur) u.source = cur.source;
+    const cur = await env.DB.prepare('SELECT source, off FROM users WHERE email = ?').bind(t.email).first();
+    if (cur) { u.source = cur.source; u.off = cur.off || '[]'; }
   }
-  const r = await env.DB.prepare('UPDATE users SET name = ?, leads = ?, blog = ?, users = ?, setup = ?, source = ?, active = ? WHERE email = ?')
-    .bind(u.name, u.leads, u.blog, u.users, u.setup, u.source, active, t.email).run();
+  const r = await env.DB.prepare('UPDATE users SET name = ?, leads = ?, blog = ?, users = ?, setup = ?, source = ?, off = ?, active = ? WHERE email = ?')
+    .bind(u.name, u.leads, u.blog, u.users, u.setup, u.source, u.off, active, t.email).run();
   if (!r.meta.changes) return json({ error: 'not found' }, 404);
   if (!active) await env.DB.prepare('DELETE FROM sessions WHERE email = ?').bind(t.email).run();
-  await audit(env, data.user.email, 'user.update', `${t.email} leads=${u.leads} blog=${u.blog} users=${u.users} setup=${u.setup} source=${u.source} active=${active}`);
+  await audit(env, data.user.email, 'user.update', `${t.email} leads=${u.leads} blog=${u.blog} users=${u.users} setup=${u.setup} source=${u.source} off=${u.off} active=${active}`);
   return json({ ok: true });
 }
 
