@@ -154,8 +154,8 @@ async function keepImage(env, url) {
     const type = r.headers.get('content-type') || '';
     if (!r.ok || !/^image\//.test(type)) return null;
     const key = 'ai/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + (type.includes('png') ? '.png' : type.includes('webp') ? '.webp' : '.jpg');
-    await env.MEDIA.put(key, r.body, { httpMetadata: { contentType: type } });
-    return '/media/' + key;
+    await env.MEDIA.put(key, r.body, { httpMetadata: { contentType: type, cacheControl: 'public, max-age=31536000, immutable' } });
+    return env.MEDIA_URL ? String(env.MEDIA_URL).replace(/\/+$/, '') + '/' + key : '/media/' + key;
   } catch (_) { return null; }
 }
 

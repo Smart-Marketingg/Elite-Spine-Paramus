@@ -37,6 +37,8 @@ import * as gbpConnect from '../functions/api/admin/gbp/connect.js';
 import * as gbpLocation from '../functions/api/admin/gbp/location.js';
 import * as analytics from '../functions/api/admin/analytics.js';
 import * as keys from '../functions/api/admin/keys.js';
+import * as crm from '../functions/api/admin/crm.js';
+import { crmState } from '../functions/_lib/util.js';
 import { withKeys } from '../functions/_lib/keys.js';
 
 import { getAiSettings, runWeekly } from '../functions/_lib/ai.js';
@@ -75,6 +77,7 @@ const ROUTES = [
   ['/api/admin/gbp/location', gbpLocation],
   ['/api/admin/analytics', analytics],
   ['/api/admin/keys', keys],
+  ['/api/admin/crm', crm],
   ['/media/[[path]]', media]
 ].map(([pattern, mod]) => ({ parts: pattern.split('/').filter(Boolean), mod }));
 
@@ -151,6 +154,7 @@ export default {
     ctx.waitUntil((async () => {
       try {
         env = await withKeys(env);
+        if ((await crmState(env)).off) return console.log('weekly job: CRM is shut down');
         const s = await getAiSettings(env);
         if (!s.enabled) return console.log('weekly job: AI Writer paused');
         const r = await runWeekly(env, env.SITE_URL || 'https://www.elitespineparamus.com', 'weekly');

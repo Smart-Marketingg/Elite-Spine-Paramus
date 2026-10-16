@@ -1,5 +1,5 @@
 // Pipelines (configurable lead stages) + auto-reply emails.
-import { slugify, clip } from './util.js';
+import { slugify, clip, crmState } from './util.js';
 
 export const PALETTE = ['#ff6a1a', '#6aa7ff', '#4cc38a', '#f4c14a', '#b48cff', '#ff6b6b', '#95a0b3'];
 
@@ -141,6 +141,7 @@ export function parseRule(r) {
 // event: { trigger: 'submit' } | { trigger: 'stage', pipeline, stage }
 export async function runAutoReplies(env, lead, event) {
   try {
+    if ((await crmState(env)).off) return; // CRM shut down: automations paused
     if (!lead.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) return;
     const rows = await env.DB.prepare('SELECT * FROM autoreplies WHERE enabled = 1 AND trigger = ? ORDER BY id').bind(event.trigger).all();
     const rules = rows.results.map(parseRule).filter(r => event.trigger === 'submit'

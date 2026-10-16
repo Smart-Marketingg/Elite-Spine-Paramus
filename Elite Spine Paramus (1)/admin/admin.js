@@ -63,6 +63,7 @@
     if (r.status === 401) { showGate(); throw new Error('Session expired'); }
     const d = await r.json().catch(() => ({}));
     if (r.status === 403 && d.error === 'no_access') { showGate('noaccess', d.email); throw new Error('No access'); }
+    if (r.status === 503 && d.error === 'crm_off') { showGate(); throw new Error(d.message || 'The team portal is temporarily offline.'); }
     if (!r.ok) throw new Error(d.error || 'Request failed (' + r.status + ')');
     return d;
   }
@@ -706,6 +707,7 @@
     document.querySelectorAll('.nav-item[data-view]').forEach(b => { b.hidden = !allowed(b.dataset.view); });
     $('#setupLabel').hidden = !canDo('setup');
     $('#pwLabel').textContent = me.hasPassword === false ? 'Set password' : 'Change password';
+    if (window.AdminCrm && mode !== 'demo') window.AdminCrm.render(me);
   }
 
   async function boot() {
@@ -721,6 +723,7 @@
       authApi = authLive;
       if (tok) return window.AdminAuth.show({ screen: 'set', token: tok });
       if (status === 403 && body && body.error === 'no_access') return showGate('noaccess', body.email);
+      if (status === 503 && body && body.error === 'crm_off') return window.AdminAuth.show({ screen: 'login', notice: body.message });
       return window.AdminAuth.show({ screen: 'login' });
     }
     if (!who) {

@@ -35,7 +35,9 @@
     "SITE_URL": "https://www.elitespineparamus.com",
     "SUPER_ADMINS": "jullien@smartmarketingg.com",
     // Google Analytics 4 property. The service-account key is the Cloudflare Secret GA_SERVICE_ACCOUNT (never in this file).
-    "GA4_PROPERTY_ID": "529168761"
+    "GA4_PROPERTY_ID": "529168761",
+    // Public address of the elitespine-media R2 bucket (custom domain). New uploads use it; old /media/ links keep working.
+    "MEDIA_URL": "https://media.elitespineparamus.com"
   },
 
   // Preview builds (any branch except main, e.g. Dev) use separate TEST copies, so testing never touches live leads, users or posts.

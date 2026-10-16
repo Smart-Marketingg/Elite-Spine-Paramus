@@ -1,6 +1,6 @@
 import { verifyAccess } from '../../_lib/access.js';
 import { getSession } from '../../_lib/auth.js';
-import { json, loadUser, sectionFor } from '../../_lib/util.js';
+import { json, loadUser, sectionFor, crmState, isFrozenSuper, CRM_OFF_MSG } from '../../_lib/util.js';
 
 export async function onRequest(ctx) {
   const { request, env } = ctx;
@@ -16,6 +16,8 @@ export async function onRequest(ctx) {
   if (!email) return json({ error: 'unauthorized' }, 401);
   const user = await loadUser(env, email);
   if (!user) return json({ error: 'no_access', email }, 403);
+  const crm = await crmState(env);
+  if (crm.off && (!user.super || !isFrozenSuper(crm, user.email))) return json({ error: 'crm_off', message: CRM_OFF_MSG }, 503);
   const section = sectionFor(new URL(request.url).pathname, request.method);
   if (section && !user.super && user.off.includes(section)) return json({ error: 'That section is turned off for your account.' }, 403);
   ctx.data.user = user;
