@@ -38,5 +38,21 @@
     "GA4_PROPERTY_ID": "529168761"
   },
 
+  // Preview builds (any branch except main, e.g. Dev) use separate TEST copies, so testing never touches live leads, users or posts.
+  // Cron triggers don't run in previews. Secrets (GA_SERVICE_ACCOUNT etc.) are added separately for previews in Cloudflare.
+  "previews": {
+    "vars": {
+      "SITE_URL": "https://www.elitespineparamus.com",
+      "SUPER_ADMINS": "jullien@smartmarketingg.com",
+      "GA4_PROPERTY_ID": "529168761"
+    },
+    "d1_databases": [
+      { "binding": "DB", "database_id": "5c4324bb-08b6-42b4-9c5a-9fe9ff8a4af3" }
+    ],
+    "r2_buckets": [
+      { "binding": "MEDIA", "bucket_name": "elitespine-media-preview" }
+    ]
+  },
+
   "observability": { "enabled": true }
 }
