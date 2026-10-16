@@ -1,5 +1,5 @@
 // Public endpoint: website forms POST here (in addition to the Google Sheet).
-import { json, clip, ATTR_FIELDS, classifyChannel } from '../_lib/util.js';
+import { json, clip, ATTR_FIELDS, classifyChannel, crmState } from '../_lib/util.js';
 import { getPipelines, pipelineFor, runAutoReplies } from '../_lib/automation.js';
 
 async function readBody(request) {
@@ -43,6 +43,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     n++;
   }
   if (!fields.email && !fields.phone) return json({ ok: false, error: 'contact required' }, 400);
+
+  // CRM shut down: accept the form but don't store it. The site's Google Sheet copy still emails the clinic.
+  if ((await crmState(env)).off) return json({ ok: true });
 
   const form = clip(body._tab, 120) || 'Website';
   const pipes = await getPipelines(env);

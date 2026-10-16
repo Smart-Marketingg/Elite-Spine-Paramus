@@ -1,5 +1,5 @@
 // Accept an invite or finish a password reset, then sign the person in.
-import { json, clip, audit } from '../../_lib/util.js';
+import { json, clip, audit, superAdmins, crmState, isFrozenSuper, CRM_OFF_MSG } from '../../_lib/util.js';
 import { useLink, hashPassword, passwordProblem, endAllSessions, createSession, sameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestPost({ request, env }) {
@@ -7,6 +7,11 @@ export async function onRequestPost({ request, env }) {
   const b = await request.json().catch(() => ({}));
   const t = await useLink(env, String(b.token || ''));
   if (!t) return json({ error: 'This link has expired or was already used. Ask for a new one.' }, 400);
+  const crmNow = await crmState(env);
+  if (crmNow.off && (!superAdmins(env).includes(t.email) || !isFrozenSuper(crmNow, t.email))) {
+    await env.DB.prepare('UPDATE auth_tokens SET used_at = NULL WHERE token_hash = ?').bind(t.token_hash).run();
+    return json({ error: CRM_OFF_MSG }, 503);
+  }
   const problem = passwordProblem(b.password, t.email);
   if (problem) {
     // Give the link back so they can try again.

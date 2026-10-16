@@ -54,6 +54,21 @@ export async function loadUser(env, email) {
   return { email: u.email, name: u.name, super: false, leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: !!u.source, off: parseOff(u.off) };
 }
 
+// CRM shutdown switch (super admins). Stored in settings as {"off":true,"by":...,"at":...}.
+// While off: only super admins can use the portal, website leads are not saved (the Google Sheet still emails them),
+// and automations (auto-replies, the Monday AI Writer job) are paused.
+export async function crmState(env) {
+  try {
+    const r = await env.DB.prepare("SELECT value FROM settings WHERE key = 'crm_state'").first();
+    const v = r ? JSON.parse(r.value) : null;
+    return v && v.off ? { off: true, by: v.by || null, at: v.at || null, supers: Array.isArray(v.supers) ? v.supers : [v.by].filter(Boolean) } : { off: false };
+  } catch (_) { return { off: false }; }
+}
+// While shut down, only the super admins who existed at shutdown count. Adding a new SUPER_ADMINS entry
+// (or editing config) while it's off doesn't grant access.
+export function isFrozenSuper(state, email) { return !state.off || (state.supers || []).includes(String(email || '').toLowerCase()); }
+export const CRM_OFF_MSG = 'The team portal is temporarily offline. Please check back later.';
+
 export function can(user, area, level) {
   if (!user) return false;
   if (area === 'users') return !!user.users;
