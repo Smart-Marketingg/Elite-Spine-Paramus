@@ -28,6 +28,61 @@
     </div>`;
   }
 
+  const KEY_TXT = { ANTHROPIC_API_KEY: 'Anthropic API key', GOOGLE_CLIENT_ID: 'Client ID', GOOGLE_CLIENT_SECRET: 'Client secret' };
+  function keyField(K, name, ph) {
+    const k = K.keys[name];
+    const state = !k.set ? '<span class="kstate">Not added</span>'
+      : k.from === 'cloudflare' ? `<span class="kstate is-ok">Set in Cloudflare ${esc(k.hint)}</span>`
+      : `<span class="kstate is-ok">Saved ${esc(k.hint)}</span>`;
+    const locked = k.from === 'cloudflare';
+    return `<div class="field kfield"><label for="k_${name}">${KEY_TXT[name]} ${state}</label>
+      <div class="kfield__row"><input class="input" id="k_${name}" type="password" autocomplete="off" spellcheck="false" placeholder="${locked ? 'Managed in Cloudflare' : k.set ? 'Paste a new value to replace it' : esc(ph)}"${locked ? ' disabled' : ''} />
+      ${locked ? '' : `<button class="btn btn--primary" type="button" data-save="${name}">Save</button>${k.set ? `<button class="btn" type="button" data-del="${name}">Remove</button>` : ''}`}</div></div>`;
+  }
+  async function openSetup(which) {
+    const box = $('#aiSetup');
+    box.innerHTML = '<div class="card ksetup"><div class="empty">Loading…</div></div>';
+    let K; try { K = await A.api.keys(); } catch (e) { box.innerHTML = ''; return toast(e.message, true); }
+    const copy = (v) => `<div class="kcopy"><code>${esc(v)}</code><button class="btn btn--sm" type="button" data-copy="${esc(v)}">Copy</button></div>`;
+    const body = which === 'claude' ? `
+      <div class="ksetup__head"><div><h2>Connect Claude</h2><p>Claude writes the blog posts. You pay Anthropic directly for usage (a weekly post costs a few cents).</p></div><button class="btn btn--sm" type="button" data-close>Close</button></div>
+      <ol class="ksteps">
+        <li>Go to <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com → API keys</a> and sign in. Add a payment method under Billing if you haven't yet.</li>
+        <li>Click <b>Create Key</b>, name it “Elite Spine website”, and copy it. It starts with <code>sk-ant-</code>.</li>
+        <li>Paste it below. We check it with Anthropic before saving.</li>
+      </ol>
+      ${keyField(K, 'ANTHROPIC_API_KEY', 'sk-ant-…')}` : `
+      <div class="ksetup__head"><div><h2>Set up Google Business Profile</h2><p>One time, about 10 minutes. This lets the portal read your Google posts. It can't edit or post anything.</p></div><button class="btn btn--sm" type="button" data-close>Close</button></div>
+      <ol class="ksteps">
+        <li>Open <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a> while signed in to the Google account that manages the Elite Spine profile, and create a project named “Elite Spine Website”.</li>
+        <li>Turn on these two APIs (open each link and click <b>Enable</b>): <a href="https://console.cloud.google.com/apis/library/mybusinessaccountmanagement.googleapis.com" target="_blank" rel="noopener">Account Management API</a> and <a href="https://console.cloud.google.com/apis/library/mybusinessbusinessinformation.googleapis.com" target="_blank" rel="noopener">Business Information API</a>. Google may ask you to <a href="https://developers.google.com/my-business/content/prereqs#request-access" target="_blank" rel="noopener">request access</a> first. Approval can take a few days.</li>
+        <li>Go to <a href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener">Google Auth Platform</a>. Set the app name to “Elite Spine Website” and the audience to <b>External</b>. Then go to <b>Audience → Publish app</b>.</li>
+        <li>Go to <a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener">Clients → Create client</a>. Choose <b>Web application</b>, and under <b>Authorized redirect URIs</b> add exactly:${copy(K.redirectUri)}</li>
+        <li>Copy the <b>Client ID</b> and <b>Client secret</b> into the boxes below, then click <b>Connect Google</b> on the card above.</li>
+      </ol>
+      ${keyField(K, 'GOOGLE_CLIENT_ID', '1234…apps.googleusercontent.com')}
+      ${keyField(K, 'GOOGLE_CLIENT_SECRET', 'GOCSPX-…')}
+      <p class="cell-sub">Changing the Client ID or secret disconnects Google, so you'll click Connect Google again.</p>`;
+    box.innerHTML = `<section class="card ksetup">${body}<p class="cell-sub ksetup__note">Keys are encrypted and stored in your Cloudflare database. They're never shown again or sent to the browser. Only super admins can change them.</p></section>`;
+    box.querySelector('[data-close]').onclick = () => { box.innerHTML = ''; };
+    box.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy).then(() => toast('Copied')); });
+    const save = async (name, value) => {
+      try {
+        await A.api.saveKey({ name, value });
+        toast(value ? KEY_TXT[name] + ' saved' : KEY_TXT[name] + ' removed');
+        S = await A.api.ai(); draw(); openSetup(which);
+      } catch (e) { toast(e.message, true); }
+    };
+    box.querySelectorAll('[data-save]').forEach(b => b.onclick = async () => {
+      const v = $('#k_' + b.dataset.save).value.trim();
+      if (!v) return toast('Paste the ' + KEY_TXT[b.dataset.save].toLowerCase() + ' first.', true);
+      b.disabled = true; b.textContent = 'Checking…';
+      await save(b.dataset.save, v);
+    });
+    box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { if (confirm('Remove the ' + KEY_TXT[b.dataset.del].toLowerCase() + '?')) save(b.dataset.del, ''); });
+    box.scrollIntoView ? window.scrollTo({ top: box.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' }) : 0;
+  }
+
   function draw() {
     const root = $('#view-ai');
     const s = S.settings, g = S.google, edit = S.canEdit;
@@ -35,7 +90,7 @@
     const m = GBP_MSG[decodeURIComponent(msg)];
     const last = S.lastRun;
     const googleCard = !g.configured && A.mode !== 'demo'
-      ? statusCard('Google Business Profile', false, '<p>Not set up yet. A one-time Google Cloud setup is needed (see ADMIN-SETUP.md). Until then, paste posts below.</p>')
+      ? statusCard('Google Business Profile', false, S.canKeys ? '<p>Not set up yet. A one-time Google Cloud setup takes about 10 minutes. Until then, paste posts below.</p>' : '<p>Not set up yet. Ask your super admin to finish the Google setup. Until then, paste posts below.</p>', S.canKeys ? '<div class="aistat__acts"><button class="btn btn--sm btn--primary" data-setup="google" type="button">Set up Google</button></div>' : '')
       : g.connected && g.needsLocation
         ? statusCard('Google Business Profile', false, `<p>Pick the location to read:</p><select class="select" id="gbpPick">${g.choices.map(c => `<option value="${esc(c.location)}">${esc(c.title)}${c.address ? ' · ' + esc(c.address) : ''}</option>`).join('')}</select>`,
           edit ? '<div class="aistat__acts"><button class="btn btn--sm btn--primary" id="gbpSave" type="button">Use this location</button></div>' : '')
@@ -51,10 +106,11 @@
       ${A.mode === 'demo' ? '<div class="notice"><strong>Demo mode.</strong> Google isn’t really connected and nothing is published. “Write with Claude” uses a live Claude preview when available.</div>' : ''}
       <div class="aistats">
         ${googleCard}
-        ${statusCard('Claude', S.claudeReady, S.claudeReady ? '<p>Connected and ready to write.</p>' : '<p>Add your Anthropic API key (<code>ANTHROPIC_API_KEY</code>) to turn on writing.</p>')}
-        ${statusCard('Weekly check', S.cronReady && s.enabled, `<p>${!s.enabled ? 'Paused.' : S.cronReady ? 'Runs every Monday morning.' : 'Scheduler not set up yet (see ADMIN-SETUP.md). Use “Check Google now” meanwhile.'}</p>
+        ${statusCard('Claude', S.claudeReady, S.claudeReady ? '<p>Connected and ready to write.</p>' : S.canKeys ? '<p>Add your Anthropic API key to turn on writing.</p>' : '<p>Not connected yet. Ask your super admin to add the Anthropic API key.</p>', S.canKeys ? `<div class="aistat__acts"><button class="btn btn--sm${S.claudeReady ? '' : ' btn--primary'}" data-setup="claude" type="button">${S.claudeReady ? 'Change key' : 'Add API key'}</button></div>` : '')}
+        ${statusCard('Weekly check', S.cronReady && s.enabled, `<p>${!s.enabled ? 'Paused.' : S.cronReady ? 'Runs automatically every Monday morning (9 AM Eastern).' : 'Use “Check Google now” to run it manually.'}</p>
           <p class="cell-sub">${last ? `Last checked ${esc(ago(last.at))}: ${last.created || 0} new post${last.created === 1 ? '' : 's'}${last.error ? ' · <span style="color:var(--red)">' + esc(last.error) + '</span>' : ''}` : 'Not run yet.'}</p>`)}
       </div>
+      <div id="aiSetup"></div>
       <div class="aigrid">
         <div class="aicol">
           <section class="card aisec">
@@ -150,6 +206,11 @@
         try { await A.api.aiReview(id, 'reject'); toast('Draft rejected'); render(); } catch (e) { toast(e.message, true); }
       };
     });
+    root.querySelectorAll('[data-setup]').forEach(b => b.onclick = () => openSetup(b.dataset.setup));
+    if (g.connected && S.canKeys && !$('[data-setup="google"]')) {
+      const acts = root.querySelector('#gbpOff') && root.querySelector('#gbpOff').parentNode;
+      if (acts) { acts.insertAdjacentHTML('beforeend', '<button class="btn btn--sm" data-setup="google" type="button">Google keys</button>'); acts.lastChild.onclick = () => openSetup('google'); }
+    }
     if ($('#gbpOn')) $('#gbpOn').onclick = async () => {
       try { const r = await A.api.gbpConnect(); if (r.url) location.href = r.url; else { toast('Connected'); render(); } } catch (e) { toast(e.message, true); }
     };
