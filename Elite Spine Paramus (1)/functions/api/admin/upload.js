@@ -15,5 +15,7 @@ export async function onRequestPost({ request, env, data }) {
   const key = `blog/${Date.now()}-${base}.${ext}`;
   await env.MEDIA.put(key, file.stream(), { httpMetadata: { contentType: file.type, cacheControl: 'public, max-age=31536000, immutable' } });
   await audit(env, data.user.email, 'media.upload', key);
-  return json({ ok: true, url: '/media/' + key });
+  // Public CDN address (media.elitespineparamus.com) when set; previews fall back to /media/ through the Worker.
+  const url = env.MEDIA_URL ? String(env.MEDIA_URL).replace(/\/+$/, '') + '/' + key : '/media/' + key;
+  return json({ ok: true, url });
 }
