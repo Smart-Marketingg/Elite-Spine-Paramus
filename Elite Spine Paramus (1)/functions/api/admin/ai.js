@@ -18,7 +18,8 @@ export async function onRequestGet({ env, data }) {
     google: { configured: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), connected: !!(gbp && gbp.refresh), title: gbp && gbp.title, address: gbp && gbp.address,
       needsLocation: !!(gbp && gbp.refresh && !gbp.location), choices: (gbp && !gbp.location && gbp.choices) || [], connectedBy: gbp && gbp.by },
     claudeReady: !!env.ANTHROPIC_API_KEY,
-    cronReady: !!env.CRON_SECRET,
+    cronReady: true, // the Monday cron is built into this Worker (wrangler.jsonc)
+    canKeys: !!data.user.super,
     lastRun: last,
     queue: queue.results,
     recent: recent.results
