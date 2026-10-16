@@ -98,6 +98,8 @@
     aiWrite: (b) => req('POST', '/api/admin/ai/write', b),
     aiReview: (id, action) => req('POST', '/api/admin/ai/review', { id, action }),
     gbpConnect: () => req('POST', '/api/admin/gbp/connect'),
+    keys: () => req('GET', '/api/admin/keys'),
+    saveKey: (b) => req('PUT', '/api/admin/keys', b),
     gbpLocation: (b) => req('POST', '/api/admin/gbp/location', b),
     analytics: (p) => req('GET', '/api/admin/analytics?' + qs(p))
   };
@@ -335,11 +337,21 @@
   }
   Object.assign(demo, {
     analytics: (p) => wait(window.AdminAnalytics.demo(p)),
+    keys() {
+      const k = db.get().keys || {};
+      const st = (n, demoSet) => ({ set: !!(k[n] || demoSet), from: k[n] ? 'app' : demoSet ? 'cloudflare' : null, hint: k[n] ? '…' + k[n].slice(-4) : demoSet ? '…demo' : '' });
+      return wait({ keys: { ANTHROPIC_API_KEY: st('ANTHROPIC_API_KEY', false), GOOGLE_CLIENT_ID: st('GOOGLE_CLIENT_ID', false), GOOGLE_CLIENT_SECRET: st('GOOGLE_CLIENT_SECRET', false) }, redirectUri: location.origin + '/api/gbp/callback', origin: location.origin });
+    },
+    saveKey(b) {
+      const d = db.get(); d.keys = d.keys || {};
+      if (b.value) d.keys[b.name] = b.value; else delete d.keys[b.name];
+      db.set(d); return this.keys().then(r => ({ ok: true, ...r }));
+    },
     ai() {
       const d = db.get();
       return wait({ settings: d.ai.settings, canEdit: canDo('blog', 'publish'),
         google: { configured: true, connected: d.ai.connected, title: d.ai.connected ? 'Elite Spine & Sports Care' : null, address: d.ai.connected ? '37 W Century Rd, Paramus' : null, needsLocation: false, choices: [] },
-        claudeReady: true, cronReady: true, lastRun: d.ai.lastRun,
+        claudeReady: true, cronReady: true, canKeys: !!(me && me.super), lastRun: d.ai.lastRun,
         queue: d.posts.filter(p => p.origin === 'ai' && p.review === 'pending').sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
         recent: d.ai.recent.map(r => { const p = d.posts.find(x => x.id === r.post_id); return { ...r, post_title: p && p.title, post_status: p && p.status }; }) });
     },

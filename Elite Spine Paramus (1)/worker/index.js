@@ -35,6 +35,9 @@ import * as aiWrite from '../functions/api/admin/ai/write.js';
 import * as aiReview from '../functions/api/admin/ai/review.js';
 import * as gbpConnect from '../functions/api/admin/gbp/connect.js';
 import * as gbpLocation from '../functions/api/admin/gbp/location.js';
+import * as analytics from '../functions/api/admin/analytics.js';
+import * as keys from '../functions/api/admin/keys.js';
+import { withKeys } from '../functions/_lib/keys.js';
 
 import { getAiSettings, runWeekly } from '../functions/_lib/ai.js';
 
@@ -70,6 +73,8 @@ const ROUTES = [
   ['/api/admin/ai/review', aiReview],
   ['/api/admin/gbp/connect', gbpConnect],
   ['/api/admin/gbp/location', gbpLocation],
+  ['/api/admin/analytics', analytics],
+  ['/api/admin/keys', keys],
   ['/media/[[path]]', media]
 ].map(([pattern, mod]) => ({ parts: pattern.split('/').filter(Boolean), mod }));
 
@@ -130,6 +135,7 @@ export default {
         if (!m) return jsonRes({ error: 'not found' }, 404);
         const handler = pick(m.mod, request.method);
         if (!handler) return jsonRes({ error: 'method not allowed' }, 405);
+        env = await withKeys(env);
         const chain = path.startsWith('/api/admin/') ? [mwApiAdmin.onRequest, handler] : [handler];
         return await run(chain, request, env, ctx, m.params);
       }
@@ -144,6 +150,7 @@ export default {
   async scheduled(event, env, ctx) {
     ctx.waitUntil((async () => {
       try {
+        env = await withKeys(env);
         const s = await getAiSettings(env);
         if (!s.enabled) return console.log('weekly job: AI Writer paused');
         const r = await runWeekly(env, env.SITE_URL || 'https://www.elitespineparamus.com', 'weekly');

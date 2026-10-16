@@ -106,7 +106,7 @@ const TOOL = {
 };
 
 export async function claudeWrite(env, s, source) {
-  if (!env.ANTHROPIC_API_KEY) throw new Error('Claude isn’t connected (ANTHROPIC_API_KEY missing).');
+  if (!env.ANTHROPIC_API_KEY) throw new Error('Claude isn’t connected yet. A super admin can add the Anthropic API key in AI Writer → Claude → Add API key.');
   const system = `You write blog posts for a physical therapy and chiropractic clinic website.
 ${CLINIC}
 Voice: ${s.voice}
