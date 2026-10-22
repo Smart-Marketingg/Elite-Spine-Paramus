@@ -9,6 +9,9 @@
 
   // Therapy → internal services section (fallback href for chips
   // that have no on-page modal). Nothing links to the old site.
+  // Dedicated page for each condition / treatment (crawlable, linked from cards + modal)
+  var PAGE = {"Neck Pain":"neck-pain-treatment-paramus-nj.html","Lower Back Pain":"lower-back-pain-treatment-paramus-nj.html","Sciatica":"sciatica-treatment-paramus-nj.html","Sports Injuries":"sports-injury-treatment-paramus-nj.html","Shoulder Pain":"shoulder-pain-treatment-paramus-nj.html","Herniated Disc":"herniated-disc-treatment-paramus-nj.html","Headaches & Migraines":"headache-migraine-treatment-paramus-nj.html","Knee Pain":"knee-pain-treatment-paramus-nj.html","Pre & Post-Op Rehab":"pre-post-op-rehab-paramus-nj.html","Pelvic Floor":"pelvic-floor-therapy-paramus-nj.html","Hand Therapy":"hand-therapy-paramus-nj.html","Vestibular Therapy":"vestibular-therapy-paramus-nj.html","Physical Therapy":"physical-therapy-paramus-nj.html","Chiropractic Care":"chiropractic-care-paramus-nj.html","Shockwave Therapy":"shockwave-therapy-paramus-nj.html","Active Release Technique":"active-release-technique-paramus-nj.html","Dry Needling":"dry-needling-paramus-nj.html","Deep Tissue Laser Therapy":"deep-tissue-laser-therapy-paramus-nj.html","Graston Technique":"graston-technique-paramus-nj.html","Massage Therapy":"massage-therapy-paramus-nj.html","Vein Screening & Procedures":"vein-screening-procedures-paramus-nj.html","Testosterone Replacement Therapy":"testosterone-replacement-therapy-paramus-nj.html","Peptide Therapy":"peptide-therapy-paramus-nj.html"};
+
   var THERAPY = {
     "Physical Therapy": SERVICES,
     "Chiropractic Care": SERVICES,
@@ -58,6 +61,18 @@
     "Pre & Post-Op Rehab": {
       lead: "Going into surgery stronger leads to a smoother recovery — and structured rehab afterward rebuilds range, strength, and function. We support you on both sides of a procedure with a clear, progressive plan.",
       treat: ["Physical Therapy", "Active Release Technique", "Deep Tissue Laser Therapy", "Massage Therapy"]
+    },
+    "Pelvic Floor": {
+      lead: "Pelvic pain, bladder leakage, and core weakness during pregnancy, after childbirth, or after surgery are common and treatable. In a private, one-on-one setting we assess the pelvic floor and the muscles around it, then build a plan to restore strength, control, and comfort.",
+      treat: ["Physical Therapy", "Massage Therapy", "Dry Needling"]
+    },
+    "Hand Therapy": {
+      lead: "Fractures, tendon injuries, carpal tunnel, arthritis, and post-surgical stiffness can make simple tasks like gripping, typing, or opening a jar painful. Our occupational therapy team restores motion, strength, and fine motor control in the hand, wrist, and elbow.",
+      treat: ["Physical Therapy", "Graston Technique", "Deep Tissue Laser Therapy", "Therapeutic Taping"]
+    },
+    "Vestibular Therapy": {
+      lead: "Dizziness, vertigo, and unsteadiness often come from the inner ear or from how the brain processes balance. We pinpoint the cause and use targeted repositioning and balance exercises to reduce symptoms and help you move with confidence again.",
+      treat: ["Physical Therapy", "Chiropractic Care"]
     }
   };
 
@@ -152,6 +167,7 @@
       '<p class="cmodal__subhead" data-subhead></p>' +
       '<div class="cmodal__chips" data-chips></div>' +
       '<div class="cmodal__ctas">' +
+        '<a class="btn btn--outline cmodal__more" data-more>Learn more</a>' +
         '<a class="btn btn--primary" data-book target="_blank" rel="noopener">' +
           '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
           'Book Appointment' +
@@ -167,6 +183,7 @@
   var elSubhead = overlay.querySelector("[data-subhead]");
   var elChips = overlay.querySelector("[data-chips]");
   var elBook = overlay.querySelector("[data-book]");
+  var elMore = overlay.querySelector("[data-more]");
   var panel = overlay.querySelector(".cmodal");
   var lastFocused = null;
 
@@ -204,6 +221,7 @@
     elSubhead.textContent = cfg.subhead;
     renderChips(cfg.chips);
     elBook.href = BOOK;
+    if (cfg.page) { elMore.href = cfg.page; elMore.textContent = "Learn more about " + cfg.title; elMore.hidden = false; } else { elMore.hidden = true; }
     lastFocused = document.activeElement;
     overlay.classList.add("is-open");
     document.body.style.overflow = "hidden";
@@ -236,7 +254,8 @@
         lead: s.lead,
         subhead: "Commonly Helps With",
         chips: s.helps.map(function (h) { return { label: h }; }),
-        moreHref: s.href || SERVICES
+        moreHref: s.href || SERVICES,
+        page: PAGE[key]
       });
     } else if (CONDITIONS[key]) {
       var c = CONDITIONS[key];
@@ -247,7 +266,8 @@
         lead: c.lead,
         subhead: "How We Treat It",
         chips: c.treat.map(function (t) { return { label: t, href: THERAPY[t] || SERVICES }; }),
-        moreHref: SERVICES
+        moreHref: SERVICES,
+        page: PAGE[key]
       });
     }
   }

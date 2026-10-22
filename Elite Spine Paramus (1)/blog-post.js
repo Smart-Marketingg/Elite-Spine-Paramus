@@ -13,7 +13,34 @@
   function fmt(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
   function readTime(html) { var d = document.createElement('div'); d.innerHTML = html || ''; return Math.max(1, Math.round((d.textContent || '').split(/\s+/).filter(Boolean).length / 220)) + ' min read'; }
   function fromApi(p) {
-    return { title: p.title, category: p.category || 'Wellness', date: fmt(p.publish_at), read: readTime(p.body_html || ''), hero: p.hero || 'images/clinic-opt.jpg', excerpt: p.excerpt || '', html: p.body_html, seoTitle: p.seo_title, seoDesc: p.seo_description };
+    return { title: p.title, category: p.category || 'Wellness', date: fmt(p.publish_at), iso: p.publish_at, read: readTime(p.body_html || ''), hero: p.hero || 'images/clinic-opt.jpg', excerpt: p.excerpt || '', html: p.body_html, seoTitle: p.seo_title, seoDesc: p.seo_description };
+  }
+
+  // Each post gets its own canonical URL + BlogPosting schema (Google renders JS).
+  function seo(post) {
+    var SITE = 'https://www.elitespineparamus.com/';
+    var url = SITE + 'blog-post?post=' + encodeURIComponent(slug);
+    var can = document.querySelector('link[rel="canonical"]');
+    if (can) can.setAttribute('href', url);
+    var ogu = document.querySelector('meta[property="og:url"]');
+    if (ogu) ogu.setAttribute('content', url);
+    var title = post.seoTitle || post.title, desc = post.seoDesc || post.excerpt || '';
+    [['meta[property="og:title"]', title], ['meta[name="twitter:title"]', title], ['meta[property="og:description"]', desc], ['meta[name="twitter:description"]', desc]].forEach(function (x) { var el = document.querySelector(x[0]); if (el && x[1]) el.setAttribute('content', x[1]); });
+    var img = /^https?:/.test(post.hero) ? post.hero : SITE + String(post.hero || 'images/og-image.jpg').replace(/^\//, '');
+    var d = new Date(post.iso || post.date);
+    var art = { '@type': 'BlogPosting', '@id': url, mainEntityOfPage: url, url: url, headline: post.title, description: desc, image: img, articleSection: post.category,
+      author: { '@type': 'Organization', name: 'Elite Spine & Sports Care of Paramus', url: SITE }, publisher: { '@id': SITE + '#clinic' } };
+    if (!isNaN(d)) art.datePublished = d.toISOString();
+    var ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': [art,
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: SITE + 'blog' },
+        { '@type': 'ListItem', position: 3, name: post.title, item: url }] },
+      { '@type': 'MedicalClinic', '@id': SITE + '#clinic', name: 'Elite Spine & Sports Care of Paramus', url: SITE, telephone: '+1-201-483-6653', logo: SITE + 'images/logo.svg',
+        address: { '@type': 'PostalAddress', streetAddress: '37 W Century Rd', addressLocality: 'Paramus', addressRegion: 'NJ', postalCode: '07652', addressCountry: 'US' } }] });
+    document.head.appendChild(ld);
   }
 
   function render(post) {
@@ -22,6 +49,7 @@
     var desc = post.seoDesc || post.excerpt;
     if (metaDesc && desc) metaDesc.setAttribute('content', desc);
 
+    seo(post);
     var heroImg = document.getElementById('artHeroImg');
     if (heroImg) { heroImg.src = post.hero; heroImg.alt = post.title; }
     set('artTag', post.category);

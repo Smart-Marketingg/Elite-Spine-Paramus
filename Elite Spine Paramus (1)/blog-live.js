@@ -27,6 +27,8 @@
         frag.appendChild(a);
       });
       grid.insertBefore(frag, grid.firstChild);
+      var lim = parseInt(grid.dataset.limit, 10);
+      if (lim) [].slice.call(grid.querySelectorAll("a.bcard"), lim).forEach(function (a) { a.remove(); });
     })
     .catch(function () {});
 })();

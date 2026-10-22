@@ -64,6 +64,20 @@
 .tcard__body { padding: 18px 20px 22px; }
 .tcard__name { font-family: var(--f-serif); font-weight: 600; font-size: 20px; color: var(--ink-d0); margin: 0 0 4px; letter-spacing: -0.01em; }
 .tcard__role { font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0; }
+.tcard { display: flex; flex-direction: column; }
+.tcard__body { display: flex; flex-direction: column; flex: 1; }
+.tcard__teaser { font-size: 14px; line-height: 1.55; color: var(--ink-d2); margin: 12px 0 16px; flex: 1; text-wrap: pretty; }
+.tcard__more { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.tcard__more svg { transition: transform .25s ease; }
+.tcard__more:hover svg { transform: translateX(4px); }
+.tcard__ph { width: 100%; height: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, var(--bg-3), var(--bg-1)); font-family: var(--f-serif); font-size: 64px; color: rgba(255,255,255,.22); letter-spacing: .04em; }
+.tbio { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: clamp(28px, 4vw, 48px); border: 1px solid var(--line-dark); border-radius: var(--r-lg); background: var(--bg-1); color: var(--ink-0); }
+.tbio::backdrop { background: rgba(6,16,31,.72); backdrop-filter: blur(6px); }
+.tbio__x { position: sticky; top: 0; float: right; width: 40px; height: 40px; margin: -12px -12px 0 12px; border-radius: 999px; border: 1px solid var(--line-dark); background: var(--bg-2); color: var(--ink-0); font-size: 22px; line-height: 1; cursor: pointer; }
+.tbio__x:hover { border-color: var(--accent); color: var(--accent); }
+.tbio__role { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+.tbio__name { font-family: var(--f-serif); font-weight: 500; font-size: clamp(26px, 3vw, 36px); line-height: 1.1; margin: 0 0 20px; }
+.tbio__text p { font-size: 16px; line-height: 1.7; color: var(--ink-1); margin: 0 0 16px; text-wrap: pretty; }
 
 /* ============================================================
    INSURANCE
@@ -227,7 +241,7 @@
 }
 
 @media (max-width: 1000px) {
-  .team-grid { grid-template-columns: repeat(3, 1fr); }
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
   .ins-grid { grid-template-columns: repeat(3, 1fr); }
   .blog-grid { grid-template-columns: repeat(2, 1fr); }
 }
