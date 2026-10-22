@@ -1,0 +1,21 @@
+{
+  "name": "elite-spine-paramus",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Elite Spine & Sports Care website + CRM on one Cloudflare Worker (D1 + R2 + Resend + Turnstile).",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --persist-to .wrangler/state --test-scheduled",
+    "deploy": "wrangler deploy",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-syntax.mjs",
+    "schema:oneline": "node scripts/flatten-schema.mjs",
+    "schema:local": "wrangler d1 execute elitespine --local --persist-to .wrangler/state --file=\"Elite Spine Paramus (1)/schema.sql\"",
+    "schema:preview": "wrangler d1 execute elitespine-preview --remote --file=\"Elite Spine Paramus (1)/schema.sql\"",
+    "schema:live": "wrangler d1 execute elitespine --remote --file=\"Elite Spine Paramus (1)/schema.sql\""
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

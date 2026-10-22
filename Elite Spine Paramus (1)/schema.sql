@@ -1,0 +1,161 @@
+-- Elite Spine & Sports Care of Paramus — CRM schema for Cloudflare D1 (SQLite).
+-- Reconstructed 2026-10-22 from the live `elitespine` database so a fresh database
+-- created from this file alone supports every feature. Idempotent: safe to re-run.
+-- Keep schema.oneline.sql in step (node scripts/flatten-schema.mjs) for the D1 console,
+-- which only accepts a single line of SQL.
+
+CREATE TABLE IF NOT EXISTS users (
+  email TEXT PRIMARY KEY,
+  name TEXT,
+  leads TEXT NOT NULL DEFAULT 'none' CHECK (leads IN ('none','view','manage')),
+  blog TEXT NOT NULL DEFAULT 'none' CHECK (blog IN ('none','write','publish')),
+  users INTEGER NOT NULL DEFAULT 0,
+  setup INTEGER NOT NULL DEFAULT 0,
+  source INTEGER NOT NULL DEFAULT 1,
+  password_hash TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  created_by TEXT,
+  last_seen TEXT,
+  off TEXT NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id_hash TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  last_seen TEXT,
+  expires_at TEXT NOT NULL,
+  ip TEXT,
+  ua TEXT
+);
+
+CREATE TABLE IF NOT EXISTS auth_tokens (
+  token_hash TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('invite','reset')),
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS login_attempts (
+  key TEXT NOT NULL,
+  at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  updated_at TEXT,
+  form TEXT,
+  source TEXT,
+  name TEXT,
+  email TEXT,
+  phone TEXT,
+  service TEXT,
+  message TEXT,
+  data TEXT,
+  status TEXT NOT NULL DEFAULT 'new',
+  status_by TEXT,
+  channel TEXT,
+  utm_source TEXT,
+  utm_medium TEXT,
+  utm_campaign TEXT,
+  utm_term TEXT,
+  utm_content TEXT,
+  click_id TEXT,
+  referrer TEXT,
+  landing_page TEXT,
+  first_touch TEXT,
+  first_seen TEXT
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_by TEXT,
+  updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS autoreplies (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  trigger TEXT NOT NULL DEFAULT 'submit' CHECK (trigger IN ('submit','stage')),
+  forms TEXT NOT NULL DEFAULT '[]',
+  pipeline TEXT,
+  stage TEXT,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  reply_to TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  updated_at TEXT,
+  updated_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS email_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  lead_id INTEGER,
+  rule_id INTEGER,
+  to_email TEXT,
+  subject TEXT,
+  status TEXT,
+  error TEXT
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  excerpt TEXT,
+  body_html TEXT,
+  category TEXT,
+  tags TEXT,
+  hero TEXT,
+  seo_title TEXT,
+  seo_description TEXT,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published')),
+  publish_at TEXT,
+  author TEXT,
+  origin TEXT NOT NULL DEFAULT 'manual',
+  origin_ref TEXT,
+  review TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS gbp_posts (
+  name TEXT PRIMARY KEY,
+  summary TEXT,
+  media TEXT,
+  created TEXT,
+  url TEXT,
+  status TEXT,
+  error TEXT,
+  post_id INTEGER,
+  seen_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
+CREATE TABLE IF NOT EXISTS audit (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  actor TEXT,
+  action TEXT,
+  target TEXT
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_attempts ON login_attempts(key, at);
+CREATE INDEX IF NOT EXISTS idx_email_lead ON email_log(lead_id);
+CREATE INDEX IF NOT EXISTS idx_email_to ON email_log(to_email, at);
+CREATE INDEX IF NOT EXISTS idx_leads_campaign ON leads(utm_campaign);
+CREATE INDEX IF NOT EXISTS idx_leads_channel ON leads(channel);
+CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_form ON leads(form);
+CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
+CREATE INDEX IF NOT EXISTS idx_posts_pub ON posts(status, publish_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_email ON sessions(email);
+CREATE INDEX IF NOT EXISTS idx_tokens_email ON auth_tokens(email, kind);
