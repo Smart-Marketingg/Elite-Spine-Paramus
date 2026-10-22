@@ -1,13 +1,14 @@
 import { verifyAccess } from '../../_lib/access.js';
 import { getSession } from '../../_lib/auth.js';
 import { json, loadUser, sectionFor, crmState, isFrozenSuper, CRM_OFF_MSG } from '../../_lib/util.js';
+import { csrfOk } from '../../_lib/headers.js';
 
 export async function onRequest(ctx) {
   const { request, env } = ctx;
   if (!env.DB) return json({ error: 'DB binding missing' }, 500);
-  if (request.method !== 'GET') {
-    const origin = request.headers.get('Origin');
-    if (origin && origin !== new URL(request.url).origin) return json({ error: 'bad origin' }, 403);
+  // Writes need a same-origin Origin header AND the portal's X-Requested-With: crm marker (CSRF).
+  if (!csrfOk(request) || (!['GET', 'HEAD'].includes(request.method) && (request.headers.get('X-Requested-With') || '').toLowerCase() !== 'crm')) {
+    return json({ error: 'bad origin' }, 403);
   }
   const session = await getSession(env, request);
   let email = session && session.email;

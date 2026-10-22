@@ -21,3 +21,5 @@ uploads
 *.md
 *.sql
 *.gs
+.DS_Store
+schema.oneline.sql

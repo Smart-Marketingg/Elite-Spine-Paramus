@@ -1,6 +1,7 @@
 // AI blog writer: Google Business Profile posts → Claude → blog drafts (or auto-publish).
 import { slugify, sanitizeHtml, clip, audit } from './util.js';
 import { getSetting, setSetting, sendEmail } from './automation.js';
+import { clinic } from './clinic.js';
 
 export const AI_DEFAULTS = {
   enabled: true,            // weekly job runs
@@ -83,8 +84,9 @@ async function fetchGbpPosts(env) {
 }
 
 // ---------- Claude ----------
-const CLINIC = `Elite Spine & Sports Care, 37 W Century Rd, Paramus, NJ 07652. Phone (201) 483-6653. Book online: https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454.
-Services: physical therapy, chiropractic care, sports injury rehab, shockwave therapy, dry needling, Active Release Technique, deep tissue laser, Graston, massage, therapeutic taping, pre/post-op rehab, pre/post-natal care, vein screening, testosterone replacement therapy, peptide therapy.
+const clinicBlurb = (env) => { const c = clinic(env); return `${c.name}, ${c.address}. Phone ${c.phone}. Book online: ${c.booking}.
+Services:`; };
+const CLINIC_REST = ` physical therapy, chiropractic care, sports injury rehab, shockwave therapy, dry needling, Active Release Technique, deep tissue laser, Graston, massage, therapeutic taping, pre/post-op rehab, pre/post-natal care, vein screening, testosterone replacement therapy, peptide therapy.
 Serves Paramus, Ridgewood, Fair Lawn, Oradell, River Edge, Hackensack, Rochelle Park and Bergen County.`;
 
 const TOOL = {
@@ -108,7 +110,7 @@ const TOOL = {
 export async function claudeWrite(env, s, source) {
   if (!env.ANTHROPIC_API_KEY) throw new Error('Claude isn’t connected yet. A super admin can add the Anthropic API key in AI Writer → Claude → Add API key.');
   const system = `You write blog posts for a physical therapy and chiropractic clinic website.
-${CLINIC}
+${clinicBlurb(env)}${CLINIC_REST}
 Voice: ${s.voice}
 Rules:
 - Write an original article of about ${s.words} words that expands on the source. Do not copy its sentences.

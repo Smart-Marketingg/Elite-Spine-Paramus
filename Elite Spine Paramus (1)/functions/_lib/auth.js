@@ -58,14 +58,26 @@ export async function getSession(env, request) {
   const tok = readCookie(request);
   if (!tok) return null;
   const id = await sha256(tok);
-  const s = await env.DB.prepare('SELECT email, expires_at, last_seen FROM sessions WHERE id_hash = ?').bind(id).first();
+  const s = await env.DB.prepare('SELECT email, expires_at, last_seen, created_at FROM sessions WHERE id_hash = ?').bind(id).first();
   if (!s) return null;
   if (s.expires_at < now()) { await env.DB.prepare('DELETE FROM sessions WHERE id_hash = ?').bind(id).run(); return null; }
-  if (!s.last_seen || Date.now() - new Date(s.last_seen).getTime() > 5 * 60e3) {
+  // Idle sign-out: IDLE_MINUTES (default 30) without a request ends the session.
+  // "Remember me" sessions (30-day expiry) get a 7-day idle window instead.
+  const idleMs = idleLimitMs(env, s);
+  const seen = new Date(s.last_seen || s.created_at || 0).getTime();
+  if (seen && Date.now() - seen > idleMs) { await env.DB.prepare('DELETE FROM sessions WHERE id_hash = ?').bind(id).run(); return null; }
+  if (!s.last_seen || Date.now() - seen > 60e3) {
     env.DB.prepare('UPDATE sessions SET last_seen = ? WHERE id_hash = ?').bind(now(), id).run().catch(() => {});
   }
   return { email: s.email, id };
 }
+export function idleLimitMs(env, s) {
+  const remember = (new Date(s.expires_at).getTime() - new Date(s.created_at || s.last_seen || Date.now()).getTime()) > 13 * 3600e3;
+  if (remember) return 7 * 864e5;
+  const m = Number(env && env.IDLE_MINUTES);
+  return (m > 0 ? m : 30) * 60e3;
+}
+export const pruneSessions = (env) => env.DB.prepare('DELETE FROM sessions WHERE expires_at < ?').bind(now()).run().catch(() => {});
 export async function endSession(env, request) {
   const tok = readCookie(request);
   if (tok) await env.DB.prepare('DELETE FROM sessions WHERE id_hash = ?').bind(await sha256(tok)).run();
@@ -110,10 +122,8 @@ export async function hit(env, key) {
 }
 export const forget = (env, key) => env.DB.prepare('DELETE FROM login_attempts WHERE key = ?').bind(key).run();
 
-export function sameOrigin(request) {
-  const o = request.headers.get('Origin');
-  return !o || o === new URL(request.url).origin;
-}
+// Sign-in endpoints: the portal always sends Origin + X-Requested-With: crm (see _lib/headers.js).
+export { csrfOk as sameOrigin } from './headers.js';
 
 // ---------- emails ----------
 export function inviteEmail(name, inviter, url) {

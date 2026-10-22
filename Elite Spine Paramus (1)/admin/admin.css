@@ -195,3 +195,5 @@ button{cursor:pointer}
 .nav-item .label-long{display:none}
 .phead h1{font-size:28px}
 }
+.health-bar{background:rgba(244,193,74,.1);border-color:rgba(244,193,74,.35);align-items:flex-start;line-height:1.5}
+.health-bar strong{color:#f4c14a}

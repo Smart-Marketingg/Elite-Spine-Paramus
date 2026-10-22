@@ -1,5 +1,6 @@
 // Pipelines (configurable lead stages) + auto-reply emails.
 import { slugify, clip, crmState } from './util.js';
+import { clinic } from './clinic.js';
 
 export const PALETTE = ['#ff6a1a', '#6aa7ff', '#4cc38a', '#f4c14a', '#b48cff', '#ff6b6b', '#95a0b3'];
 
@@ -91,34 +92,36 @@ export async function reconcileLeads(env, pipes) {
 }
 
 // ---------- auto-replies ----------
-const CLINIC = { phone: '(201) 483-6653', booking: 'https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454', email: 'elitespineparamus@gmail.com' };
-
-export function renderTemplate(tpl, lead) {
+// Clinic phone/booking/address come from wrangler.jsonc vars (see _lib/clinic.js).
+export function renderTemplate(tpl, lead, env = {}) {
+  const c = clinic(env);
   const first = String(lead.name || '').trim().split(/\s+/)[0] || 'there';
   const vars = {
     first_name: first, name: lead.name || 'there', service: lead.service || 'your visit', form: lead.form || 'our website',
-    clinic_phone: CLINIC.phone, booking_link: CLINIC.booking
+    clinic_phone: c.phone, booking_link: c.booking, clinic_name: c.name
   };
   return String(tpl || '').replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (m, k) => (k.toLowerCase() in vars ? vars[k.toLowerCase()] : m));
 }
 
 const escH = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-export function textToHtml(text) {
+export function textToHtml(text, env = {}) {
+  const c = clinic(env);
   const body = escH(text).split(/\n{2,}/).map(p => `<p style="margin:0 0 14px">${p.replace(/\n/g, '<br>')}</p>`).join('')
-    .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#ff6a1a">$1</a>');
+    .replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" style="color:${c.color}">$1</a>`);
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1d2433;max-width:560px;margin:0 auto;padding:24px">${body}
-<p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12.5px;color:#6b7280">Elite Spine &amp; Sports Care · 37 W Century Rd, Paramus, NJ 07652 · ${CLINIC.phone}</p></div>`;
+<p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12.5px;color:#6b7280">${escH(c.name)} · ${escH(c.address)} · ${escH(c.phone)}</p></div>`;
 }
 
 export async function sendEmail(env, { to, subject, text, replyTo }) {
   if (!env.RESEND_API_KEY) return { status: 'skipped', error: 'Email sending is not connected (RESEND_API_KEY missing).' };
+  const c = clinic(env);
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: env.MAIL_FROM || 'Elite Spine & Sports Care <hello@elitespineparamus.com>',
-        to: [to], subject, text, html: textToHtml(text), reply_to: replyTo || CLINIC.email
+        from: c.from,
+        to: [to], subject, text, html: textToHtml(text, env), reply_to: replyTo || c.email
       })
     });
     if (r.ok) return { status: 'sent' };
@@ -156,9 +159,9 @@ export async function runAutoReplies(env, lead, event) {
         const dup = await env.DB.prepare(`SELECT 1 FROM email_log WHERE lead_id = ? AND rule_id = ? AND status = 'sent'`).bind(lead.id, r.id).first();
         if (dup) continue;
       }
-      const subject = renderTemplate(r.subject, lead).slice(0, 200);
+      const subject = renderTemplate(r.subject, lead, env).slice(0, 200);
       if (budget <= 0) { await log(env, lead.id, r.id, lead.email, subject, { status: 'skipped', error: 'Daily limit for this address reached.' }); continue; }
-      const res = await sendEmail(env, { to: lead.email, subject, text: renderTemplate(r.body, lead), replyTo: r.reply_to });
+      const res = await sendEmail(env, { to: lead.email, subject, text: renderTemplate(r.body, lead, env), replyTo: r.reply_to });
       if (res.status === 'sent') budget--;
       await log(env, lead.id, r.id, lead.email, subject, res);
     }
