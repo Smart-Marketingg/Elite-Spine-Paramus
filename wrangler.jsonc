@@ -1,7 +1,9 @@
+// Elite Spine & Sports Care — website + CRM on one Cloudflare Worker.
+// The site, worker/ and functions/ all live in the "Elite Spine Paramus (1)" folder.
+// Secrets (SETTINGS_KEY, RESEND_API_KEY, TURNSTILE_SECRET, GA_SERVICE_ACCOUNT, ANTHROPIC_API_KEY,
+// GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) are NEVER in this file: `wrangler secret put NAME` or the dashboard.
 {
-  // The site, worker/ and functions/ all live in the "Elite Spine Paramus (1)" folder.
   // Must match the Worker's name in the Cloudflare dashboard EXACTLY.
-  // If your repo already has a wrangler.toml / wrangler.json, copy its "name" here and delete that file.
   "name": "elite-spine-paramus",
   "main": "./Elite Spine Paramus (1)/worker/index.js",
   "compatibility_date": "2026-09-01",
@@ -27,13 +29,31 @@
     { "binding": "MEDIA", "bucket_name": "elitespine-media" }
   ],
 
+  // Every 15 min: retry lead emails that failed + prune expired sessions.
   // Monday 13:00 UTC (9 AM EDT / 8 AM EST): AI Writer checks Google posts.
-  "triggers": { "crons": ["0 13 * * MON"] },
+  "triggers": { "crons": ["*/15 * * * *", "0 13 * * MON"] },
 
   // Plain settings only. Put API keys in the dashboard as Secrets (they survive deploys).
   "vars": {
     "SITE_URL": "https://www.elitespineparamus.com",
     "SUPER_ADMINS": "jullien@smartmarketingg.com",
+    "BUSINESS_NAME": "Elite Spine & Sports Care",
+    "BUSINESS_PHONE": "(201) 483-6653",
+    "BUSINESS_ADDRESS": "37 W Century Rd, Paramus, NJ 07652",
+    "BOOKING_URL": "https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454",
+    // Who gets the "new lead" email (comma list). Per-form overrides: NOTIFY_ROUTES {"Form name":"a@x, b@y"}.
+    "NOTIFY_EMAILS": "elitespineparamus@gmail.com",
+    "NOTIFY_ROUTES": "{}",
+    // Sender must be on a domain verified in Resend (elitespineparamus.com).
+    "MAIL_FROM": "Elite Spine & Sports Care <hello@elitespineparamus.com>",
+    "MAIL_REPLY_TO": "elitespineparamus@gmail.com",
+    "TIMEZONE": "America/New_York",
+    "BRAND_COLOR": "#ff6a1a",
+    // Portal idle sign-out in minutes ("remember me" sessions get 7 days).
+    "IDLE_MINUTES": "30",
+    // Turnstile widget SITE key for elitespineparamus.com (public; the SECRET is a Cloudflare secret).
+    // Empty = Turnstile off (forms still protected by honeypot + rate limit).
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFh6eRdJu17OsvBE",
     // Google Analytics 4 property. The service-account key is the Cloudflare Secret GA_SERVICE_ACCOUNT (never in this file).
     "GA4_PROPERTY_ID": "529168761",
     // Public address of the elitespine-media R2 bucket (custom domain). New uploads use it; old /media/ links keep working.
@@ -42,10 +62,23 @@
 
   // Preview builds (any branch except main, e.g. Dev) use separate TEST copies, so testing never touches live leads, users or posts.
   // Cron triggers don't run in previews. Secrets (GA_SERVICE_ACCOUNT etc.) are added separately for previews in Cloudflare.
+  // Lead emails from previews go to the agency inbox only.
   "previews": {
     "vars": {
       "SITE_URL": "https://www.elitespineparamus.com",
       "SUPER_ADMINS": "jullien@smartmarketingg.com",
+      "BUSINESS_NAME": "Elite Spine & Sports Care (preview)",
+      "BUSINESS_PHONE": "(201) 483-6653",
+      "BUSINESS_ADDRESS": "37 W Century Rd, Paramus, NJ 07652",
+      "BOOKING_URL": "https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454",
+      "NOTIFY_EMAILS": "jullien@smartmarketingg.com",
+      "NOTIFY_ROUTES": "{}",
+      "MAIL_FROM": "Elite Spine & Sports Care <hello@elitespineparamus.com>",
+      "MAIL_REPLY_TO": "jullien@smartmarketingg.com",
+      "TIMEZONE": "America/New_York",
+      "BRAND_COLOR": "#ff6a1a",
+      "IDLE_MINUTES": "30",
+      "TURNSTILE_SITE_KEY": "0x4AAAAAAFh6eRdJu17OsvBE",
       "GA4_PROPERTY_ID": "529168761"
     },
     "d1_databases": [
