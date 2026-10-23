@@ -9,7 +9,7 @@ function target(params, env) {
 export async function onRequestPut({ request, env, params, data }) {
   if (!can(data.user, 'users')) return forbidden();
   const t = target(params, env);
-  if (t.isSuper) return forbidden('Super admins can’t be changed here.');
+  if (t.isSuper) return data.user.super ? forbidden('Super admins can’t be changed here.') : json({ error: 'not found' }, 404);
   const b = await request.json().catch(() => ({}));
   const u = normalizeUser(b);
   if (t.email === data.user.email && !u.users) return forbidden('You can’t remove your own user-management access.');
@@ -30,7 +30,7 @@ export async function onRequestPut({ request, env, params, data }) {
 export async function onRequestDelete({ env, params, data }) {
   if (!can(data.user, 'users')) return forbidden();
   const t = target(params, env);
-  if (t.isSuper) return forbidden('Super admins can’t be removed here.');
+  if (t.isSuper) return data.user.super ? forbidden('Super admins can’t be removed here.') : json({ error: 'not found' }, 404);
   if (t.email === data.user.email) return forbidden('You can’t remove yourself.');
   await env.DB.prepare('DELETE FROM users WHERE email = ?').bind(t.email).run();
   await env.DB.prepare('DELETE FROM sessions WHERE email = ?').bind(t.email).run();

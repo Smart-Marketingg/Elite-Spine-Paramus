@@ -277,7 +277,7 @@
       const u = d.users.find(x => x.email === d.as) || d.users[0];
       return wait({ email: u.email, name: u.name, super: false, hasPassword: !!u.joined, perms: { leads: u.leads, blog: u.blog, users: !!u.users, setup: !!u.setup, source: u.source !== 0, off: u.off || [] } });
     },
-    users() { return wait({ supers: [SUPER], users: db.get().users }); },
+    users() { return wait({ supers: db.get().as === SUPER ? [SUPER] : [], users: db.get().users }); },
     addUser(u) {
       const d = db.get();
       const email = String(u.email || '').trim().toLowerCase();

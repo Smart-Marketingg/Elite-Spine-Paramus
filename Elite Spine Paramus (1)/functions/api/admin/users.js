@@ -36,7 +36,9 @@ export async function onRequestGet({ env, data }) {
   ).bind(...supers).all();
   const last = await env.DB.prepare(`SELECT email, MAX(last_seen) AS seen FROM sessions GROUP BY email`).all();
   const seen = Object.fromEntries(last.results.map(x => [x.email, x.seen]));
-  return json({ supers, users: r.results.map(u => ({ ...u, off: parseOff(u.off), joined: !!u.joined, last_seen: seen[u.email] || u.last_seen })) });
+  // Only super admins learn who the super admins are; everyone else sees just the regular team.
+  const users = r.results.map(u => ({ ...u, off: parseOff(u.off), joined: !!u.joined, last_seen: seen[u.email] || u.last_seen, created_by: data.user.super ? u.created_by : null }));
+  return json({ supers: data.user.super ? supers : [], users });
 }
 
 export async function onRequestPost({ request, env, data }) {
@@ -44,7 +46,8 @@ export async function onRequestPost({ request, env, data }) {
   const b = await request.json().catch(() => ({}));
   const email = String(b.email || '').trim().toLowerCase();
   if (!EMAIL.test(email)) return json({ error: 'Enter a valid email address.' }, 400);
-  if (superAdmins(env).includes(email)) return json({ error: 'That person is already a super admin.' }, 409);
+  // Same wording as a duplicate so non-super admins can't probe which addresses are super admins.
+  if (superAdmins(env).includes(email)) return json({ error: data.user.super ? 'That person is already a super admin.' : 'That email already has access.' }, 409);
   const u = normalizeUser(b);
   if (!data.user.super) { u.source = 1; u.off = '[]'; } // only super admins decide lead-source visibility and hidden sections
   try {
