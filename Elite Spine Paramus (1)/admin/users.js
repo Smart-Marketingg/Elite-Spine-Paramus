@@ -33,7 +33,7 @@
         <div><strong>Blog</strong><span><b>Write drafts:</b> create and edit drafts. <b>Publish:</b> also publish, schedule, edit live posts, and delete.</span></div>
         <div><strong>Setup</strong><span>Create and edit pipelines and stages, and turn auto-reply emails on or off.</span></div>
         <div><strong>Sidebar sections</strong><span>Super admins only. Switch any sidebar item off for a person (for example AI Writer or Analytics) and it disappears from their portal and is blocked on the server. Orange = visible.</span></div>
-        <div><strong>Manage users</strong><span>Add and remove people and change their access. Super admins can’t be changed here.</span></div>
+        <div><strong>Manage users</strong><span>Add and remove people and change their access.${A.me.super ? ' Super admins can’t be changed here.' : ''}</span></div>
       </div>`;
     $('#uAdd').addEventListener('submit', add);
     if ($('#uSideAdd')) $('#uSideAdd').querySelectorAll('.uSide').forEach(b => b.addEventListener('click', () => { b.classList.toggle('is-active'); b.setAttribute('aria-pressed', b.classList.contains('is-active')); }));
@@ -44,7 +44,7 @@
     let d;
     try { d = await A.api.users(); } catch (e) { toast(e.message, true); return; }
     const meEmail = A.me.email;
-    const supers = d.supers.map(email => `
+    const supers = (d.supers || []).map(email => `
       <tr class="is-locked">
         <td><div class="cell-name">${esc(email === 'jullien@smartmarketingg.com' ? 'Jullien' : email)}${email === meEmail ? ' <span class="you">You</span>' : ''}</div><div class="cell-sub">${esc(email)}</div></td>
         <td colspan="4"><span class="pill pill--published">Super admin</span> <span class="cell-sub">Full access to everything</span></td>

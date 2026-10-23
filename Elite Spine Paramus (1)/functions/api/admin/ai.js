@@ -16,7 +16,7 @@ export async function onRequestGet({ env, data }) {
     settings: s,
     canEdit: can(data.user, 'blog', 'publish'),
     google: { configured: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), connected: !!(gbp && gbp.refresh), title: gbp && gbp.title, address: gbp && gbp.address,
-      needsLocation: !!(gbp && gbp.refresh && !gbp.location), choices: (gbp && !gbp.location && gbp.choices) || [], connectedBy: gbp && gbp.by },
+      needsLocation: !!(gbp && gbp.refresh && !gbp.location), choices: (gbp && !gbp.location && gbp.choices) || [], connectedBy: data.user.super ? (gbp && gbp.by) : null },
     claudeReady: !!env.ANTHROPIC_API_KEY,
     cronReady: true, // the Monday cron is built into this Worker (wrangler.jsonc)
     canKeys: !!data.user.super,
