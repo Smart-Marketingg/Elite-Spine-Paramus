@@ -103,33 +103,73 @@
   }
 
   // ==========================================================
-  // FORMS → GOOGLE SHEET + reCAPTCHA v3
-  // 1. SHEET_ENDPOINT: your Apps Script Web App URL (set below).
-  // 2. RECAPTCHA_SITE_KEY: paste your reCAPTCHA v3 SITE key.
-  // See SHEET-SETUP.md for the full walkthrough. reCAPTCHA stays
-  // off until a site key is present; forms still work meanwhile.
+  // FORMS → CRM (/api/lead on this Worker) + Google Sheet backup
+  // Spam protection is Cloudflare Turnstile. The site key comes from
+  // /api/config (TURNSTILE_SITE_KEY in wrangler.jsonc); nothing to paste
+  // here. Until a key exists, forms work without the widget.
+  // SHEET_ENDPOINT keeps the old Apps Script copy; set it to '' to stop it.
   // ==========================================================
   const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwvpP6t2vKnA2xpA-hm3JaEg4mzE7Jo9-V6d4DSAUDqXudpjNqrDIaSv1DRlalRhe8xrg/exec';
-  const RECAPTCHA_SITE_KEY = '';
+  const onHttp = /^https?:$/.test(location.protocol);
 
-  // Load the reCAPTCHA v3 library once, only if a key is configured.
-  if (RECAPTCHA_SITE_KEY) {
+  // Honeypot: a field real visitors never see or fill. Bots that fill every input trip it.
+  document.querySelectorAll('.cform__form').forEach((form) => {
+    if (form.querySelector('[name="website"]')) return;
+    const wrap = document.createElement('div');
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.style.cssText = 'position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;';
+    wrap.innerHTML = '<label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>';
+    form.appendChild(wrap);
+  });
+
+  // Turnstile: load the script only when a site key is configured, render one
+  // invisible-when-possible widget per form, and fetch a token at submit time.
+  let turnstileKey = null;              // null = not known yet, '' = disabled
+  const widgets = new WeakMap();        // form -> widget id
+  const configReady = onHttp && document.querySelector('.cform__form')
+    ? fetch('/api/config', { headers: { Accept: 'application/json' } }).then((r) => r.ok ? r.json() : {}).catch(() => ({}))
+        .then((c) => { turnstileKey = (c && c.turnstile_site_key) || ''; if (turnstileKey) loadTurnstile(); })
+    : Promise.resolve().then(() => { turnstileKey = ''; });
+
+  function loadTurnstile() {
+    if (document.getElementById('cf-turnstile-js')) return;
+    window.__esTurnstileReady = () => {
+      document.querySelectorAll('.cform__form').forEach((form) => {
+        if (widgets.has(form)) return;
+        const host = document.createElement('div');
+        host.className = 'cform__turnstile';
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.parentNode.insertBefore(host, btn); else form.appendChild(host);
+        try {
+          widgets.set(form, window.turnstile.render(host, { sitekey: turnstileKey, size: 'flexible', appearance: 'interaction-only', execution: 'execute', 'response-field': false }));
+        } catch (_) { /* leave the form usable */ }
+      });
+    };
     const s = document.createElement('script');
-    s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(RECAPTCHA_SITE_KEY);
-    s.async = true;
+    s.id = 'cf-turnstile-js';
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__esTurnstileReady&render=explicit';
+    s.async = true; s.defer = true;
     document.head.appendChild(s);
   }
 
-  // Resolve a fresh reCAPTCHA token for a given action (or '' if disabled).
-  function getRecaptchaToken(action) {
-    if (!RECAPTCHA_SITE_KEY || typeof grecaptcha === 'undefined') {
-      return Promise.resolve('');
-    }
-    return new Promise((resolve) => {
-      grecaptcha.ready(() => {
-        grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action })
-          .then(resolve)
-          .catch(() => resolve(''));
+  // Resolve a Turnstile token for this form ('' when Turnstile is off or unavailable).
+  function getTurnstileToken(form) {
+    return configReady.then(() => {
+      const id = widgets.get(form);
+      if (!turnstileKey || id === undefined || !window.turnstile) return '';
+      const have = window.turnstile.getResponse(id);
+      if (have) return have;
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = (t) => { if (!settled) { settled = true; resolve(t || ''); } };
+        const timer = setTimeout(() => finish(''), 20000);
+        try {
+          window.turnstile.execute(id, {
+            callback: (t) => { clearTimeout(timer); finish(t); },
+            'error-callback': () => { clearTimeout(timer); finish(''); },
+            'expired-callback': () => { try { window.turnstile.reset(id); } catch (_) {} }
+          });
+        } catch (_) { clearTimeout(timer); finish(''); }
       });
     });
   }
@@ -172,42 +212,44 @@
     if (f) { data.append('first_touch', firstTouchLabel(f)); data.append('first_seen', f.at || ''); }
   }
 
-  function sendToSheet(form, token) {
-    if (!SHEET_ENDPOINT) return Promise.resolve();
+  function formBody(form) {
     const data = new URLSearchParams();
-    // Tab name comes from the form's data-sheet-tab attribute
+    // Form name comes from the form's data-sheet-tab attribute (also the CRM "form" label)
     data.append('_tab', form.getAttribute('data-sheet-tab') || 'Submissions');
     data.append('_source', location.pathname.split('/').pop() || 'index.html');
-    if (token) data.append('_recaptcha', token);
     new FormData(form).forEach((value, key) => {
-      if (key.charAt(0) !== '_') data.append(key, value);
+      if (key.charAt(0) !== '_' && key !== 'website') data.append(key, value);
     });
     appendAttribution(data);
+    return data;
+  }
+
+  // Backup copy in the Google Sheet (fire and forget; no token, no honeypot).
+  function sendToSheet(form) {
+    if (!SHEET_ENDPOINT) return Promise.resolve();
     return fetch(SHEET_ENDPOINT, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: data.toString()
-    });
+      body: formBody(form).toString()
+    }).catch(() => {});
   }
 
-  // Also store the lead in the secure admin portal (Cloudflare D1 via /api/lead).
+  // The CRM (Cloudflare D1 via /api/lead): emails the clinic and runs auto-replies.
+  // Resolves { ok, error, message } so the form can show a real error.
   function sendToBackend(form, token) {
-    if (!/^https?:$/.test(location.protocol)) return Promise.resolve();
-    const data = new URLSearchParams();
-    data.append('_tab', form.getAttribute('data-sheet-tab') || 'Submissions');
-    data.append('_source', location.pathname.split('/').pop() || 'index.html');
-    if (token) data.append('_recaptcha', token);
-    new FormData(form).forEach((value, key) => {
-      if (key.charAt(0) !== '_') data.append(key, value);
-    });
-    appendAttribution(data);
+    if (!onHttp) return Promise.resolve({ ok: true, skipped: true });
+    const data = formBody(form);
+    const hp = form.querySelector('[name="website"]');
+    if (hp && hp.value) data.append('website', hp.value);
+    if (token) data.append('cf-turnstile-response', token);
     return fetch('/api/lead', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', Accept: 'application/json', 'X-Requested-With': 'crm' },
       body: data.toString(),
       keepalive: true
-    }).catch(() => {});
+    }).then((r) => r.json().catch(() => ({ ok: r.ok })).then((d) => Object.assign({ ok: r.ok }, d)))
+      .catch(() => ({ ok: false, error: 'network' }));
   }
 
   // Appointment / contact form validation (handles every form on the page)
@@ -270,13 +312,26 @@
         form.reset();
         window.location.href = '/thank-you';
       };
-      // Get a reCAPTCHA token (no-op if not configured), then send to Sheet.
-      const action = (form.getAttribute('data-sheet-tab') || 'submit').replace(/\W+/g, '_');
-      getRecaptchaToken(action)
-        // reCAPTCHA tokens are single-use, so each destination gets its own.
-        .then((token) => getRecaptchaToken(action).then((token2) =>
-          Promise.allSettled([sendToSheet(form, token), sendToBackend(form, token2)])))
-        .then(done)
+      const fail = (msg) => {
+        if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+        let note = form.querySelector('.cform__note');
+        if (!note) { note = document.createElement('p'); note.className = 'cform__note field__err'; note.setAttribute('role', 'alert'); note.style.display = 'block'; form.appendChild(note); }
+        note.textContent = msg;
+        const id = widgets.get(form);
+        if (id !== undefined && window.turnstile) { try { window.turnstile.reset(id); } catch (_) {} }
+      };
+      // Turnstile token (empty when Turnstile is off), then CRM + Sheet backup.
+      getTurnstileToken(form)
+        .then((token) => Promise.all([sendToBackend(form, token), sendToSheet(form)]))
+        .then(([res]) => {
+          if (res.ok) return done();
+          if (res.error === 'turnstile') return fail('Please complete the verification and try again.');
+          if (res.error === 'rate_limited') return fail(res.message || 'Too many submissions. Please try again in a few minutes.');
+          if (res.error === 'contact required') return fail(res.message || 'Add a phone number or email so we can reach you.');
+          // Any other CRM failure: the Sheet backup still emailed the clinic, so don't strand the visitor.
+          if (SHEET_ENDPOINT) return done();
+          fail('Something went wrong sending your request. Please call us at (201) 483-6653.');
+        })
         .catch(done);
     });
   });

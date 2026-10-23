@@ -44,18 +44,21 @@
   const chan = (l) => l.channel || 'Direct';
 
   // Shared template rendering (mirrors functions/_lib/automation.js).
-  const CLINIC = { phone: '(201) 483-6653', booking: 'https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454' };
+  // Defaults only; the live values come from /api/admin/me (wrangler.jsonc vars).
+  const CLINIC = { name: 'Elite Spine & Sports Care', phone: '(201) 483-6653', booking: 'https://www.zocdoc.com/practice/elite-spine-and-sports-care-60454' };
   function renderTemplate(tpl, lead) {
     const first = String(lead.name || '').trim().split(/\s+/)[0] || 'there';
-    const v = { first_name: first, name: lead.name || 'there', service: lead.service || 'your visit', form: lead.form || 'our website', clinic_phone: CLINIC.phone, booking_link: CLINIC.booking };
+    const v = { first_name: first, name: lead.name || 'there', service: lead.service || 'your visit', form: lead.form || 'our website', clinic_phone: CLINIC.phone, booking_link: CLINIC.booking, clinic_name: CLINIC.name };
     return String(tpl || '').replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (m, k) => (k.toLowerCase() in v ? v[k.toLowerCase()] : m));
   }
 
   // ---------- API: live (Cloudflare) or demo (localStorage) ----------
-  const isProd = /(^|\.)elitespineparamus\.com$|\.pages\.dev$/.test(location.hostname);
+  const isProd = /(^|\.)elitespineparamus\.com$|\.pages\.dev$|\.workers\.dev$/.test(location.hostname);
+  // Every write carries this marker; the Worker refuses writes without it (CSRF).
+  const CSRF = { 'X-Requested-With': 'crm' };
 
   async function req(method, path, body) {
-    const opt = { method, credentials: 'same-origin', headers: { Accept: 'application/json' } };
+    const opt = { method, credentials: 'same-origin', headers: { Accept: 'application/json', ...CSRF } };
     if (body instanceof FormData) opt.body = body;
     else if (body) { opt.body = JSON.stringify(body); opt.headers['Content-Type'] = 'application/json'; }
     let r;
@@ -63,6 +66,7 @@
     if (r.status === 401) { showGate(); throw new Error('Session expired'); }
     const d = await r.json().catch(() => ({}));
     if (r.status === 403 && d.error === 'no_access') { showGate('noaccess', d.email); throw new Error('No access'); }
+    if (r.status === 503 && d.error === 'crm_off') { showGate(); throw new Error(d.message || 'The team portal is temporarily offline.'); }
     if (!r.ok) throw new Error(d.error || 'Request failed (' + r.status + ')');
     return d;
   }
@@ -106,7 +110,7 @@
 
   // Sign-in calls (no session needed). Errors come back as readable messages.
   async function authReq(method, path, body) {
-    const r = await fetch(path, { method, credentials: 'same-origin', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    const r = await fetch(path, { method, credentials: 'same-origin', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...CSRF }, body: body ? JSON.stringify(body) : undefined });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || 'Something went wrong. Try again.');
     return d;
@@ -706,13 +710,31 @@
     document.querySelectorAll('.nav-item[data-view]').forEach(b => { b.hidden = !allowed(b.dataset.view); });
     $('#setupLabel').hidden = !canDo('setup');
     $('#pwLabel').textContent = me.hasPassword === false ? 'Set password' : 'Change password';
+    if (me.clinic) Object.assign(CLINIC, me.clinic);
+    renderHealth(me.health);
+    if (window.AdminCrm && mode !== 'demo') window.AdminCrm.render(me);
+  }
+
+  // Super admins: a strip under the top bar when something the CRM depends on is not connected.
+  function renderHealth(h) {
+    let el = $('#healthBar');
+    if (!h) { if (el) el.remove(); return; }
+    const issues = [];
+    if (!h.resend) issues.push('Email is off: add the RESEND_API_KEY secret so new leads reach the clinic and auto-replies send.');
+    else if (!h.notify || !h.notify.length) issues.push('NOTIFY_EMAILS is empty: nobody is emailed about new leads.');
+    if (!h.turnstile) issues.push('Turnstile is off: forms rely on the honeypot and rate limit only (set TURNSTILE_SITE_KEY + TURNSTILE_SECRET).');
+    const n = h.notifications || {};
+    if (n.failed && !n.sent) issues.push('Lead emails failed in the last 24 h' + (n.lastError ? ': ' + n.lastError : '.'));
+    if (!issues.length) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'healthBar'; el.className = 'demo-bar health-bar'; $('.main').prepend(el); }
+    el.innerHTML = `<strong>Setup</strong><span>${issues.map(esc).join('<br>')}</span>`;
   }
 
   async function boot() {
     const tok = new URLSearchParams(location.hash.slice(1)).get('set');
     let who = null, status = 0, body = null, isJson = false;
     try {
-      const r = await fetch('/api/admin/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      const r = await fetch('/api/admin/me', { credentials: 'same-origin', headers: { Accept: 'application/json', ...CSRF } });
       status = r.status; isJson = (r.headers.get('content-type') || '').includes('json');
       if (isJson) body = await r.json().catch(() => null);
       if (r.ok && isJson) who = body;
@@ -721,6 +743,7 @@
       authApi = authLive;
       if (tok) return window.AdminAuth.show({ screen: 'set', token: tok });
       if (status === 403 && body && body.error === 'no_access') return showGate('noaccess', body.email);
+      if (status === 503 && body && body.error === 'crm_off') return window.AdminAuth.show({ screen: 'login', notice: body.message });
       return window.AdminAuth.show({ screen: 'login' });
     }
     if (!who) {

@@ -308,3 +308,7 @@
 
 .cmodal__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 @media (max-width: 480px) { .cmodal__ctas .btn { width: 100%; } }
+
+.svc-helps{margin-top:32px;max-width:760px}
+.cmodal__more[hidden]{display:none}
+.cindex .cgrid + .svc-helps{margin-top:40px}

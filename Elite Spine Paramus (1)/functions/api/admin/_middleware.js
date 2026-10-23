@@ -1,13 +1,14 @@
 import { verifyAccess } from '../../_lib/access.js';
 import { getSession } from '../../_lib/auth.js';
-import { json, loadUser, sectionFor } from '../../_lib/util.js';
+import { json, loadUser, sectionFor, crmState, isFrozenSuper, CRM_OFF_MSG } from '../../_lib/util.js';
+import { csrfOk } from '../../_lib/headers.js';
 
 export async function onRequest(ctx) {
   const { request, env } = ctx;
   if (!env.DB) return json({ error: 'DB binding missing' }, 500);
-  if (request.method !== 'GET') {
-    const origin = request.headers.get('Origin');
-    if (origin && origin !== new URL(request.url).origin) return json({ error: 'bad origin' }, 403);
+  // Writes need a same-origin Origin header AND the portal's X-Requested-With: crm marker (CSRF).
+  if (!csrfOk(request) || (!['GET', 'HEAD'].includes(request.method) && (request.headers.get('X-Requested-With') || '').toLowerCase() !== 'crm')) {
+    return json({ error: 'bad origin' }, 403);
   }
   const session = await getSession(env, request);
   let email = session && session.email;
@@ -16,6 +17,8 @@ export async function onRequest(ctx) {
   if (!email) return json({ error: 'unauthorized' }, 401);
   const user = await loadUser(env, email);
   if (!user) return json({ error: 'no_access', email }, 403);
+  const crm = await crmState(env);
+  if (crm.off && (!user.super || !isFrozenSuper(crm, user.email))) return json({ error: 'crm_off', message: CRM_OFF_MSG }, 503);
   const section = sectionFor(new URL(request.url).pathname, request.method);
   if (section && !user.super && user.off.includes(section)) return json({ error: 'That section is turned off for your account.' }, 403);
   ctx.data.user = user;

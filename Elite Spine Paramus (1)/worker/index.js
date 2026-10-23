@@ -37,13 +37,22 @@ import * as gbpConnect from '../functions/api/admin/gbp/connect.js';
 import * as gbpLocation from '../functions/api/admin/gbp/location.js';
 import * as analytics from '../functions/api/admin/analytics.js';
 import * as keys from '../functions/api/admin/keys.js';
+import * as crm from '../functions/api/admin/crm.js';
+import * as config from '../functions/api/config.js';
+import * as health from '../functions/api/health.js';
+import { crmState } from '../functions/_lib/util.js';
 import { withKeys } from '../functions/_lib/keys.js';
+import { applySecurityHeaders } from '../functions/_lib/headers.js';
+import { retryFailedNotifications } from '../functions/_lib/notify.js';
+import { pruneSessions } from '../functions/_lib/auth.js';
 
 import { getAiSettings, runWeekly } from '../functions/_lib/ai.js';
 
 // Static paths before dynamic ones within the same folder.
 const ROUTES = [
   ['/api/lead', lead],
+  ['/api/config', config],
+  ['/api/health', health],
   ['/api/posts', posts],
   ['/api/auth/login', authLogin],
   ['/api/auth/logout', authLogout],
@@ -75,6 +84,7 @@ const ROUTES = [
   ['/api/admin/gbp/location', gbpLocation],
   ['/api/admin/analytics', analytics],
   ['/api/admin/keys', keys],
+  ['/api/admin/crm', crm],
   ['/media/[[path]]', media]
 ].map(([pattern, mod]) => ({ parts: pattern.split('/').filter(Boolean), mod }));
 
@@ -126,36 +136,50 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+    let res;
     try {
       if (path === '/admin' || path.startsWith('/admin/')) {
-        return await run([mwAdmin.onRequest], request, env, ctx, {});
-      }
-      if (path.startsWith('/api/') || path.startsWith('/media/')) {
+        res = await run([mwAdmin.onRequest], request, env, ctx, {});
+      } else if (path.startsWith('/api/') || path.startsWith('/media/')) {
         const m = match(path);
-        if (!m) return jsonRes({ error: 'not found' }, 404);
-        const handler = pick(m.mod, request.method);
-        if (!handler) return jsonRes({ error: 'method not allowed' }, 405);
-        env = await withKeys(env);
-        const chain = path.startsWith('/api/admin/') ? [mwApiAdmin.onRequest, handler] : [handler];
-        return await run(chain, request, env, ctx, m.params);
+        if (!m) res = jsonRes({ error: 'not found' }, 404);
+        else {
+          const handler = pick(m.mod, request.method);
+          if (!handler) res = jsonRes({ error: 'method not allowed' }, 405);
+          else {
+            env = await withKeys(env);
+            const chain = path.startsWith('/api/admin/') ? [mwApiAdmin.onRequest, handler] : [handler];
+            res = await run(chain, request, env, ctx, m.params);
+          }
+        }
+      } else {
+        return env.ASSETS.fetch(request);
       }
-      return env.ASSETS.fetch(request);
     } catch (e) {
       console.error('request failed', path, e && e.stack || e);
-      return jsonRes({ error: 'Server error' }, 500);
+      res = jsonRes({ error: 'Server error' }, 500);
     }
+    return applySecurityHeaders(res, path, env);
   },
 
-  // Weekly AI Writer job (cron trigger in wrangler.jsonc).
+  // Cron triggers (wrangler.jsonc): every 15 min = retry failed lead notifications + prune
+  // expired sessions; Monday 13:00 UTC = AI Writer weekly job.
   async scheduled(event, env, ctx) {
     ctx.waitUntil((async () => {
       try {
         env = await withKeys(env);
+        if (event.cron !== '0 13 * * MON') {
+          await pruneSessions(env);
+          const r = await retryFailedNotifications(env);
+          if (r.retried) console.log('notification retry', JSON.stringify(r));
+          return;
+        }
+        if ((await crmState(env)).off) return console.log('weekly job: CRM is shut down');
         const s = await getAiSettings(env);
         if (!s.enabled) return console.log('weekly job: AI Writer paused');
         const r = await runWeekly(env, env.SITE_URL || 'https://www.elitespineparamus.com', 'weekly');
         console.log('weekly job', JSON.stringify({ checked: r.checked, created: r.created.length, error: r.error }));
-      } catch (e) { console.error('weekly job failed', e && e.stack || e); }
+      } catch (e) { console.error('scheduled job failed', event.cron, e && e.stack || e); }
     })());
   }
 };

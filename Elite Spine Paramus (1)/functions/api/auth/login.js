@@ -1,4 +1,4 @@
-import { json, superAdmins } from '../../_lib/util.js';
+import { json, superAdmins, crmState, isFrozenSuper, CRM_OFF_MSG } from '../../_lib/util.js';
 import { verifyPassword, createSession, tooMany, hit, forget, sameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestPost({ request, env }) {
@@ -7,6 +7,7 @@ export async function onRequestPost({ request, env }) {
   const email = String(b.email || '').trim().toLowerCase().slice(0, 200);
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   if (!email || !b.password) return json({ error: 'Enter your email and password.' }, 400);
+  { const crm = await crmState(env); if (crm.off && (!superAdmins(env).includes(email) || !isFrozenSuper(crm, email))) return json({ error: CRM_OFF_MSG }, 503); }
   if (await tooMany(env, 'e:' + email, 5, 15) || await tooMany(env, 'i:' + ip, 25, 15)) {
     return json({ error: 'Too many sign-in attempts. Wait 15 minutes or reset your password.' }, 429);
   }

@@ -11,18 +11,18 @@
 
 # Services & individual treatment pages
 /services                             /conditions-services#services   301
-/physical-therapy                     /conditions-services#services   301
-/chiropractic-care                    /conditions-services#services   301
-/extracorporeal-shockwave-therapy     /conditions-services#services   301
-/active-release-technique-art         /conditions-services#services   301
-/copy-of-pre-post-operation           /conditions-services#services   301
-/pre-post-operation                   /conditions-services#services   301
+/physical-therapy                     /physical-therapy-paramus-nj    301
+/chiropractic-care                    /chiropractic-care-paramus-nj   301
+/extracorporeal-shockwave-therapy     /shockwave-therapy-paramus-nj   301
+/active-release-technique-art         /active-release-technique-paramus-nj 301
+/copy-of-pre-post-operation           /dry-needling-paramus-nj        301
+/pre-post-operation                   /pre-post-op-rehab-paramus-nj   301
 /pre-post-natal-care                  /conditions-services#services   301
-/deep-tissue-laser-therapy            /conditions-services#services   301
-/graston-technique                    /conditions-services#services   301
-/massage-therapy                      /conditions-services#services   301
+/deep-tissue-laser-therapy            /deep-tissue-laser-therapy-paramus-nj 301
+/graston-technique                    /graston-technique-paramus-nj   301
+/massage-therapy                      /massage-therapy-paramus-nj     301
 /therapeutic-taping                   /conditions-services#services   301
-/occupational-therapy                 /conditions-services#services   301
+/occupational-therapy                 /hand-therapy-paramus-nj        301
 
 # About / team / resources
 /about-us                             /#about                    301

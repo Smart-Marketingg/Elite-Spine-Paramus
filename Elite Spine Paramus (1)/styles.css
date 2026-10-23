@@ -1564,12 +1564,14 @@ body.menu-open { overflow: hidden; }
   .nav__book { padding: 0 16px; font-size: 12px; }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .nav__links { display: none; }
   .nav__inner { grid-template-columns: auto 1fr; }
   .nav__book { display: none; }
   .nav__phone { margin-left: auto; }
   .nav__burger { display: flex; }
+}
+@media (max-width: 1100px) {
   .conditions__inner,
   .treatments__inner,
   .proof__inner,
@@ -1640,3 +1642,13 @@ body.menu-open { overflow: hidden; }
   transition: background .25s ease, border-color .25s ease, transform .25s ease;
 }
 .vlb__close:hover { background: var(--accent); border-color: var(--accent); transform: rotate(90deg); }
+
+/* Homepage: From the Blog */
+.hblog{background:var(--bg-light);padding:clamp(64px,9vw,110px) var(--pad-x)}
+.hblog__inner{max-width:var(--maxw);margin:0 auto}
+.hblog__head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px 40px;flex-wrap:wrap;margin-bottom:44px}
+.hblog__head .lede{margin-bottom:0}
+.hblog__all{border-color:rgba(10,22,40,.25);color:var(--ink-d0)}
+.hblog__all:hover{border-color:var(--accent);color:var(--accent)}
+.hblog .blog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:760px){.hblog .blog-grid{grid-template-columns:1fr}}

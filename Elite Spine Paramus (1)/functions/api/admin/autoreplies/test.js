@@ -6,8 +6,8 @@ export async function onRequestPost({ request, env, data }) {
   if (!can(data.user, 'setup')) return forbidden();
   const b = await request.json().catch(() => ({}));
   const sample = { name: 'Alex Sample', service: 'Lower Back Pain', form: 'Appointment Requests' };
-  const subject = '[Test] ' + renderTemplate(clip(b.subject, 200) || '', sample);
-  const res = await sendEmail(env, { to: data.user.email, subject, text: renderTemplate(clip(b.body, 8000) || '', sample), replyTo: b.reply_to });
+  const subject = '[Test] ' + renderTemplate(clip(b.subject, 200) || '', sample, env);
+  const res = await sendEmail(env, { to: data.user.email, subject, text: renderTemplate(clip(b.body, 8000) || '', sample, env), replyTo: b.reply_to });
   if (res.status !== 'sent') return json({ error: res.error || 'Send failed' }, 400);
   return json({ ok: true, to: data.user.email });
 }
