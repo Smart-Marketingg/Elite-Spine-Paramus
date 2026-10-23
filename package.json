@@ -10,6 +10,7 @@
     "test": "node --test tests/*.test.mjs",
     "check": "node scripts/check-syntax.mjs",
     "schema:oneline": "node scripts/flatten-schema.mjs",
+    "import:design": "node scripts/import-design-export.mjs",
     "schema:local": "wrangler d1 execute elitespine --local --persist-to .wrangler/state --file=\"Elite Spine Paramus (1)/schema.sql\"",
     "schema:preview": "wrangler d1 execute elitespine-preview --remote --file=\"Elite Spine Paramus (1)/schema.sql\"",
     "schema:live": "wrangler d1 execute elitespine --remote --file=\"Elite Spine Paramus (1)/schema.sql\""
