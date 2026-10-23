@@ -20,7 +20,8 @@ export function normalizeUser(b) {
 export async function sendInvite(env, request, email, name, inviter) {
   const tok = await createLink(env, email, 'invite', inviter.email);
   const url = linkUrl(request, tok);
-  const m = inviteEmail(name, inviter.super ? 'Jullien at Smart Marketing' : (inviter.name || inviter.email), url);
+  // Invites from a super admin are signed by the agency, never by a person.
+  const m = inviteEmail(name, inviter.super ? (env.AGENCY_NAME || 'Smart Marketing') : (inviter.name || inviter.email), url);
   const res = await sendEmail(env, { to: email, subject: m.subject, text: m.text });
   return { inviteUrl: url, emailed: res.status === 'sent', emailError: res.status === 'sent' ? null : res.error };
 }
