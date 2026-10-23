@@ -1652,3 +1652,4 @@ body.menu-open { overflow: hidden; }
 .hblog__all:hover{border-color:var(--accent);color:var(--accent)}
 .hblog .blog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:760px){.hblog .blog-grid{grid-template-columns:1fr}}
+.cform__turnstile { margin: 6px 0 12px; min-height: 65px; }

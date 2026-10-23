@@ -123,7 +123,8 @@
   });
 
   // Turnstile: load the script only when a site key is configured, render one
-  // invisible-when-possible widget per form, and fetch a token at submit time.
+  // always-visible widget per form (above the submit button). It verifies as soon
+  // as the page loads; submit waits for its token if the visitor is faster.
   let turnstileKey = null;              // null = not known yet, '' = disabled
   const widgets = new WeakMap();        // form -> widget id
   const configReady = onHttp && document.querySelector('.cform__form')
@@ -141,7 +142,10 @@
         const btn = form.querySelector('button[type="submit"]');
         if (btn) btn.parentNode.insertBefore(host, btn); else form.appendChild(host);
         try {
-          widgets.set(form, window.turnstile.render(host, { sitekey: turnstileKey, size: 'flexible', appearance: 'interaction-only', execution: 'execute', 'response-field': false }));
+          widgets.set(form, window.turnstile.render(host, {
+            sitekey: turnstileKey, size: 'flexible', appearance: 'always', theme: 'dark', 'response-field': false,
+            'expired-callback': () => { try { window.turnstile.reset(widgets.get(form)); } catch (_) {} }
+          }));
         } catch (_) { /* leave the form usable */ }
       });
     };
@@ -157,19 +161,17 @@
     return configReady.then(() => {
       const id = widgets.get(form);
       if (!turnstileKey || id === undefined || !window.turnstile) return '';
-      const have = window.turnstile.getResponse(id);
-      if (have) return have;
+      // The widget runs on its own; wait up to 20s for its token (longer if a challenge is showing).
       return new Promise((resolve) => {
-        let settled = false;
-        const finish = (t) => { if (!settled) { settled = true; resolve(t || ''); } };
-        const timer = setTimeout(() => finish(''), 20000);
-        try {
-          window.turnstile.execute(id, {
-            callback: (t) => { clearTimeout(timer); finish(t); },
-            'error-callback': () => { clearTimeout(timer); finish(''); },
-            'expired-callback': () => { try { window.turnstile.reset(id); } catch (_) {} }
-          });
-        } catch (_) { clearTimeout(timer); finish(''); }
+        const started = Date.now();
+        const poll = () => {
+          let t = '';
+          try { t = window.turnstile.getResponse(id) || ''; } catch (_) { t = ''; }
+          if (t) return resolve(t);
+          if (Date.now() - started > 20000) return resolve('');
+          setTimeout(poll, 250);
+        };
+        poll();
       });
     });
   }
