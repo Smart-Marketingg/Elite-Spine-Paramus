@@ -26,7 +26,10 @@ const SKIP_FILES = /^(CRM Admin\.html|.*\.md|.*\.sql|.*\.gs|wrangler\..*|package
 // What must survive in the two CRM-dependent site files.
 const GUARDS = {
   'app.js': ['/api/config', 'cf-turnstile-response', 'name="website"', "fetch('/api/lead'", 'X-Requested-With'],
-  'styles.css': ['.cform__turnstile']
+  'styles.css': ['.cform__turnstile'],
+  // Pages Claude Design once exported truncated (no footer, no app.js). Flag an export that still lacks them.
+  'michael-yarish-dpt.html': ['<footer', 'src="app.js"', '</html>'],
+  'jessica-jozefiak-otr.html': ['<footer', 'src="app.js"', '</html>']
 };
 
 function walk(dir, rel = '') {
