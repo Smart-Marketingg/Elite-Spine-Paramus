@@ -53,7 +53,7 @@
     "IDLE_MINUTES": "30",
     // Turnstile widget SITE key for elitespineparamus.com (public; the SECRET is a Cloudflare secret).
     // Empty = Turnstile off (forms still protected by honeypot + rate limit).
-    "TURNSTILE_SITE_KEY": "",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFh6eRdJu17OsvBE",
     // Google Analytics 4 property. The service-account key is the Cloudflare Secret GA_SERVICE_ACCOUNT (never in this file).
     "GA4_PROPERTY_ID": "529168761",
     // Public address of the elitespine-media R2 bucket (custom domain). New uploads use it; old /media/ links keep working.
@@ -78,7 +78,7 @@
       "TIMEZONE": "America/New_York",
       "BRAND_COLOR": "#ff6a1a",
       "IDLE_MINUTES": "30",
-      "TURNSTILE_SITE_KEY": "",
+      "TURNSTILE_SITE_KEY": "0x4AAAAAAFh6eRdJu17OsvBE",
       "GA4_PROPERTY_ID": "529168761"
     },
     "d1_databases": [
