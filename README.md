@@ -80,4 +80,20 @@ Create `.dev.vars` (git-ignored) with `SETTINGS_KEY=anything` and, optionally, `
 
 ## Site updates from Claude Design
 
-Claude Design re-exports the whole site folder. Only copy site files (HTML, CSS, images, `app.js`…) into `Elite Spine Paramus (1)/`; never its `crm/`, `backend/`, `export/` or `uploads/` folders. `app.js` is the one site file the CRM depends on (honeypot, Turnstile, `/api/lead` post): after a re-export, diff it before committing.
+Claude Design holds the website only. The CRM (`functions/`, `worker/`, `admin/`, `wrangler.jsonc`, `schema.sql`) lives
+only in this repo, so an export cannot overwrite it, but the export bundle also contains stale `crm/`, `backend/`,
+`export/` and `uploads/` folders that must never be copied in. Two site files carry CRM wiring and exist in both places:
+`app.js` (honeypot, Turnstile, the post to `/api/lead`) and `styles.css` (the `.cform__turnstile` rule). Keep the
+Claude Design copies identical to the repo copies; whenever a CRM change touches either file, paste the new version
+into Claude Design as well.
+
+Never export straight into this folder. Export to a scratch folder and run:
+
+```bash
+npm run import:design -- "/path/to/Elite Spine Paramus"            # dry run: lists what would change
+npm run import:design -- "/path/to/Elite Spine Paramus" --apply    # copy
+```
+
+The script copies only site files (top-level HTML/CSS/JS, `images/`, `_headers`, `_redirects`, robots, sitemap, llms.txt),
+ignores everything CRM-related, and refuses to copy `app.js` or `styles.css` if the incoming copy lacks the CRM markers.
+A refusal means Claude Design is behind the repo: update it there first, or keep the repo copy and import the rest.
