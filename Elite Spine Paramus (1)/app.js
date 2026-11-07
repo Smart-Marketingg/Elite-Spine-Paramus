@@ -1,6 +1,23 @@
 // Tiny interactivity layer for Elite Spine homepage.
 
 (function () {
+  // GA4 events for key-event reporting: phone taps, Zocdoc booking clicks, successful form sends.
+  const track = (name, params) => { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); };
+  // Fire an event, then run next() once GA confirms (or after 1s, or right away without gtag).
+  const trackThen = (name, params, next) => {
+    let ran = false;
+    const go = () => { if (!ran) { ran = true; next(); } };
+    if (typeof window.gtag !== 'function') return go();
+    window.gtag('event', name, Object.assign({}, params, { transport_type: 'beacon', event_callback: go, event_timeout: 1000 }));
+    setTimeout(go, 1000);
+  };
+  document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    if (/^tel:/i.test(href)) track('phone_click', { link_url: href, transport_type: 'beacon' });
+    else if (/zocdoc\.com/i.test(href)) track('booking_click', { link_url: a.href, transport_type: 'beacon' });
+  }, true);
   // Scroll-state for nav blur/condense
   const nav = document.getElementById('nav');
   if (nav) {
@@ -312,7 +329,7 @@
 
       const done = () => {
         form.reset();
-        window.location.href = '/thank-you';
+        trackThen('generate_lead', { form_id: form.id || 'appointmentForm' }, () => { window.location.href = '/thank-you'; });
       };
       const fail = (msg) => {
         if (btn) { btn.disabled = false; btn.style.opacity = ''; }

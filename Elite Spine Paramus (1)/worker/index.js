@@ -132,8 +132,27 @@ function run(chain, request, env, ctx, params) {
   return next();
 }
 
+// Send http:// and bare-domain page requests to the https://www. host in SITE_URL with one 301.
+// Other hosts (workers.dev previews) and non-GET requests are left alone.
+export function canonicalRedirect(request, siteUrl) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return null;
+  let host;
+  try { host = new URL(siteUrl).hostname; } catch { return null; }
+  if (!host.startsWith('www.')) return null;
+  const url = new URL(request.url);
+  const bare = host.slice(4);
+  if (url.hostname !== host && url.hostname !== bare) return null;
+  if (url.hostname === host && url.protocol === 'https:') return null;
+  url.protocol = 'https:';
+  url.hostname = host;
+  url.port = '';
+  return Response.redirect(url.toString(), 301);
+}
+
 export default {
   async fetch(request, env, ctx) {
+    const redirect = canonicalRedirect(request, env.SITE_URL);
+    if (redirect) return redirect;
     const url = new URL(request.url);
     const path = url.pathname;
     let res;

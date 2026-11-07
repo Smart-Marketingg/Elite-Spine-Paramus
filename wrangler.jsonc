@@ -13,7 +13,8 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/media/*"]
+    // true so the Worker can 301 http:// and bare-domain requests; static pages still fall through to ASSETS.
+    "run_worker_first": true
   },
 
   "d1_databases": [
