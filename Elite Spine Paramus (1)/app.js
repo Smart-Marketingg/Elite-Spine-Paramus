@@ -1,6 +1,16 @@
 // Tiny interactivity layer for Elite Spine homepage.
 
 (function () {
+  // GA4 events for key-event reporting: phone taps and Zocdoc booking clicks.
+  // Form leads are counted in GA4 from /thank-you page views (generate_lead), so they are not sent here.
+  const track = (name, params) => { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); };
+  document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    if (/^tel:/i.test(href)) track('phone_click', { link_url: href, transport_type: 'beacon' });
+    else if (/zocdoc\.com/i.test(href)) track('booking_click', { link_url: a.href, transport_type: 'beacon' });
+  }, true);
   // Scroll-state for nav blur/condense
   const nav = document.getElementById('nav');
   if (nav) {
