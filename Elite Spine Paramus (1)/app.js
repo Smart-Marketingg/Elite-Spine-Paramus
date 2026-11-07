@@ -1,16 +1,9 @@
 // Tiny interactivity layer for Elite Spine homepage.
 
 (function () {
-  // GA4 events for key-event reporting: phone taps, Zocdoc booking clicks, successful form sends.
+  // GA4 events for key-event reporting: phone taps and Zocdoc booking clicks.
+  // Form leads are counted in GA4 from /thank-you page views (generate_lead), so they are not sent here.
   const track = (name, params) => { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); };
-  // Fire an event, then run next() once GA confirms (or after 1s, or right away without gtag).
-  const trackThen = (name, params, next) => {
-    let ran = false;
-    const go = () => { if (!ran) { ran = true; next(); } };
-    if (typeof window.gtag !== 'function') return go();
-    window.gtag('event', name, Object.assign({}, params, { transport_type: 'beacon', event_callback: go, event_timeout: 1000 }));
-    setTimeout(go, 1000);
-  };
   document.addEventListener('click', (e) => {
     const a = e.target && e.target.closest && e.target.closest('a[href]');
     if (!a) return;
@@ -329,7 +322,7 @@
 
       const done = () => {
         form.reset();
-        trackThen('generate_lead', { form_id: form.id || 'appointmentForm' }, () => { window.location.href = '/thank-you'; });
+        window.location.href = '/thank-you';
       };
       const fail = (msg) => {
         if (btn) { btn.disabled = false; btn.style.opacity = ''; }
