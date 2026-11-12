@@ -75,7 +75,7 @@
     $('#postList').innerHTML = `<table class="table"><thead><tr><th>Post</th><th>Status</th><th>Category</th><th>Date</th></tr></thead><tbody>${rows.map(p => {
       const s = stateOf(p);
       const date = s === 'draft' ? 'Edited ' + fmtDate(p.updated_at, false) : (s === 'scheduled' ? 'Goes live ' : '') + fmtDate(p.publish_at);
-      return `<tr data-id="${p.id}"><td><div class="ptitle"><span class="pthumb" style="background-image:url('${esc(p.hero || '')}')"></span><div><strong>${esc(p.title)}</strong><span>/blog-post.html?post=${esc(p.slug)}</span></div></div></td>
+      return `<tr data-id="${p.id}"><td><div class="ptitle"><span class="pthumb" style="background-image:url('${esc(p.hero || '')}')"></span><div><strong>${esc(p.title)}</strong><span>/blog-post?post=${esc(p.slug)}</span></div></div></td>
         <td><span class="pill pill--${s}">${STATE_LABEL[s]}</span>${p.review === 'pending' ? ' <span class="pill pill--c" style="--c:#b48cff">Needs review</span>' : p.origin === 'ai' ? ' <span class="pill pill--c" style="--c:#b48cff">AI</span>' : ''}</td><td class="cell-muted">${esc(p.category || '—')}</td><td class="cell-muted">${esc(date)}</td></tr>`;
     }).join('')}</tbody></table>`;
     $('#postList').querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => { location.hash = '#blog/edit/' + r.dataset.id; });
@@ -130,7 +130,7 @@
       <div class="ed">
         <div>
           <textarea class="ed-title" id="fTitle" rows="1" placeholder="Post title">${esc(P.title)}</textarea>
-          <div class="ed-slug">elitespineparamus.com/blog-post.html?post=<input id="fSlug" value="${esc(P.slug)}" placeholder="url-slug" aria-label="URL slug" /></div>
+          <div class="ed-slug">elitespineparamus.com/blog-post?post=<input id="fSlug" value="${esc(P.slug)}" placeholder="url-slug" aria-label="URL slug" /></div>
           <div class="field"><label for="fExcerpt">Excerpt <em id="cExcerpt"></em></label>
             <textarea class="textarea" id="fExcerpt" rows="2" placeholder="One or two sentences shown on the blog card.">${esc(P.excerpt || '')}</textarea></div>
           <div class="rte">

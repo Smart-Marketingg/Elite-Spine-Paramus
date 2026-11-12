@@ -18,6 +18,7 @@
 
   // Each post gets its own canonical URL + BlogPosting schema (Google renders JS).
   function seo(post) {
+    if (document.querySelector('script[data-ssr-ld]')) return; // the Worker already wrote canonical, meta and schema
     var SITE = 'https://www.elitespineparamus.com/';
     var url = SITE + 'blog-post?post=' + encodeURIComponent(slug);
     var can = document.querySelector('link[rel="canonical"]');
@@ -44,7 +45,7 @@
   }
 
   function render(post) {
-    document.title = (post.seoTitle || post.title) + ' — Elite Spine & Sports Care | Paramus, NJ';
+    document.title = post.seoTitle || (post.title + ' — Elite Spine & Sports Care | Paramus, NJ');
     var metaDesc = document.querySelector('meta[name="description"]');
     var desc = post.seoDesc || post.excerpt;
     if (metaDesc && desc) metaDesc.setAttribute('content', desc);
@@ -83,7 +84,7 @@
       var p = x[1];
       var a = document.createElement('a');
       a.className = 'bcard';
-      a.href = 'blog-post.html?post=' + encodeURIComponent(x[0]);
+      a.href = 'blog-post?post=' + encodeURIComponent(x[0]);
       a.innerHTML =
         '<div class="bcard__img"><img src="' + esc(p.hero) + '" alt="' + esc(p.title) + '" /></div>' +
         '<div class="bcard__body">' +
