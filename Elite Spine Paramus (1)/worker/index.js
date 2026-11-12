@@ -47,6 +47,7 @@ import { retryFailedNotifications } from '../functions/_lib/notify.js';
 import { pruneSessions } from '../functions/_lib/auth.js';
 
 import { getAiSettings, runWeekly } from '../functions/_lib/ai.js';
+import { livePosts, livePost, builtInSlugs, mergeSitemap, renderPost, renderGrid } from '../functions/_lib/blog-seo.js';
 
 // Static paths before dynamic ones within the same folder.
 const ROUTES = [
@@ -149,6 +150,33 @@ export function canonicalRedirect(request, siteUrl) {
   return Response.redirect(url.toString(), 301);
 }
 
+// Pages that carry portal blog posts. The Worker fills them in so crawlers get real HTML;
+// on any database error the plain static file is served instead.
+const BLOG_PATHS = new Set(['/', '/blog', '/blog-post', '/sitemap.xml']);
+
+async function blogPage(request, env, url) {
+  const res = await env.ASSETS.fetch(request);
+  if (!res.ok) return res;
+  const site = (env.SITE_URL || 'https://www.elitespineparamus.com').replace(/\/+$/, '');
+  try {
+    if (url.pathname === '/sitemap.xml') {
+      const [xml, posts, js] = await Promise.all([res.text(), livePosts(env), env.ASSETS.fetch(new URL('/blog-posts.js', url)).then((r) => (r.ok ? r.text() : ''))]);
+      const headers = new Headers(res.headers);
+      headers.delete('content-length');
+      headers.delete('etag');
+      return new Response(mergeSitemap(xml, site, posts, builtInSlugs(js)), { status: 200, headers });
+    }
+    if (url.pathname === '/blog-post') {
+      const post = await livePost(env, url.searchParams.get('post'));
+      return post ? renderPost(res, site, post) : res;
+    }
+    return renderGrid(res, await livePosts(env));
+  } catch (e) {
+    console.error('blog render failed', url.pathname, e && e.stack || e);
+    return env.ASSETS.fetch(request);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const redirect = canonicalRedirect(request, env.SITE_URL);
@@ -171,6 +199,11 @@ export default {
             res = await run(chain, request, env, ctx, m.params);
           }
         }
+      } else if (path === '/blog-post.html' && url.search) {
+        // Old card links: one 301 to the canonical /blog-post?post= URL.
+        return Response.redirect(`${url.origin}/blog-post${url.search}`, 301);
+      } else if ((request.method === 'GET' || request.method === 'HEAD') && BLOG_PATHS.has(path)) {
+        return await blogPage(request, env, url);
       } else {
         return env.ASSETS.fetch(request);
       }

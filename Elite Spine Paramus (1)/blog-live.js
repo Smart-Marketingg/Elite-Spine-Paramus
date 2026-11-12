@@ -15,7 +15,7 @@
         var mins = Math.max(1, Math.round((p.len || 0) / 1300)) + ' min read';
         var a = document.createElement('a');
         a.className = 'bcard';
-        a.href = 'blog-post.html?post=' + encodeURIComponent(p.slug);
+        a.href = 'blog-post?post=' + encodeURIComponent(p.slug);
         a.innerHTML =
           '<div class="bcard__img"><img loading="lazy" src="' + esc(p.hero || 'images/clinic-opt.jpg') + '" alt="' + esc(p.title) + '" /></div>' +
           '<div class="bcard__body">' +
