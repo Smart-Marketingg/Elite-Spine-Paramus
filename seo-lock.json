@@ -1,0 +1,1165 @@
+{
+ "_about": "SEO lock. Cloudflare refuses to deploy if the site no longer matches this file. Do not edit by hand: run \"node tools/seo-guard.mjs update\" after an intended SEO change and commit the result. See SEO-GUARD.md.",
+ "custom": {
+  "siteDir": "Elite Spine Paramus (1)",
+  "ignore": [],
+  "mustContain": [
+   {
+    "file": "Elite Spine Paramus (1)/worker/index.js",
+    "text": "canonicalRedirect(request, env.SITE_URL)",
+    "why": "http and bare domain -> https://www redirect"
+   },
+   {
+    "file": "Elite Spine Paramus (1)/worker/index.js",
+    "text": "'/sitemap.xml'",
+    "why": "blog posts are added to sitemap.xml and server-rendered for Google"
+   },
+   {
+    "file": "wrangler.jsonc",
+    "text": "\"run_worker_first\": true",
+    "why": "the Worker must run before static files"
+   }
+  ],
+  "mustExist": [
+   "Elite Spine Paramus (1)/functions/_lib/blog-seo.js"
+  ]
+ },
+ "pages": {
+  "404.html": {
+   "lang": "en",
+   "title": "Redirecting… — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "",
+   "robots": "noindex",
+   "canonical": "https://www.elitespineparamus.com/404",
+   "og": {
+    "og:title": "Page Not Found — Elite Spine &amp; Sports Care",
+    "og:description": "The page you are looking for has moved. Explore Elite Spine &amp; Sports Care in Paramus, NJ.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "active-release-technique-paramus-nj.html": {
+   "lang": "en",
+   "title": "Active Release Technique in Paramus, NJ | Elite Spine",
+   "description": "Active Release Technique in Paramus, NJ at Elite Spine &amp; Sports Care. Targeted soft-tissue work that releases adhesions and restores smooth, pain-free movement.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/active-release-technique-paramus-nj",
+   "og": {
+    "og:title": "Active Release Technique in Paramus, NJ | Elite Spine",
+    "og:description": "Active Release Technique in Paramus, NJ at Elite Spine &amp; Sports Care. Targeted soft-tissue work that releases adhesions and restores smooth, pain-free movement.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "b3e53d0b2e8f"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "blog-post.html": {
+   "lang": "en",
+   "title": "Wellness Advice &amp; Blog — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "Expert advice on spine health, sports recovery, physical therapy, and injury prevention from the team at Elite Spine & Sports Care in Paramus, NJ.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/blog-post",
+   "og": {
+    "og:title": "Wellness Advice — Elite Spine &amp; Sports Care | Paramus, NJ",
+    "og:description": "Expert advice on spine health, sports recovery, and injury prevention from the team at Elite Spine &amp; Sports Care.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "blog.html": {
+   "lang": "en",
+   "title": "Wellness Advice &amp; Blog — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "Expert advice on spine health, sports recovery, physical therapy, and injury prevention from the team at Elite Spine & Sports Care in Paramus, NJ.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/blog",
+   "og": {
+    "og:title": "Wellness Advice &amp; Blog — Elite Spine &amp; Sports Care",
+    "og:description": "Expert advice on spine health, sports recovery, physical therapy, and injury prevention from our Paramus, NJ team.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "Blog+BreadcrumbList+MedicalClinic",
+     "hash": "4a549dadbc2a"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "https://static.wixstatic.com/media/6515c6_7c2af55988694654904e9ceab6a0953a~mv2.jpg/v1/fill/w_800,h_500,al_c,q_85,enc_avif,quality_auto/blog.jpg": "Athlete recovering from injury",
+    "https://static.wixstatic.com/media/6515c6_85efa5944a804eb09c45f620890b1c84~mv2.webp/v1/fill/w_800,h_500,al_c,q_85,enc_avif,quality_auto/blog.webp": "Occupational therapy session",
+    "images/chiropractic-care.avif": "Adolescent athlete training",
+    "images/logo.svg": "Elite Spine & Sports Care",
+    "images/physical-therapy.avif": "Physical therapy session"
+   }
+  },
+  "chiropractic-care-paramus-nj.html": {
+   "lang": "en",
+   "title": "Chiropractic Care in Paramus, NJ | Elite Spine",
+   "description": "Chiropractic Care in Paramus, NJ at Elite Spine &amp; Sports Care. Precise spinal adjustments to relieve pressure, improve alignment, and restore function.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/chiropractic-care-paramus-nj",
+   "og": {
+    "og:title": "Chiropractic Care in Paramus, NJ | Elite Spine",
+    "og:description": "Chiropractic Care in Paramus, NJ at Elite Spine &amp; Sports Care. Precise spinal adjustments to relieve pressure, improve alignment, and restore function.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "1c5880cfb204"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "conditions-services.html": {
+   "lang": "en",
+   "title": "Conditions & Treatments in Paramus, NJ | Elite Spine",
+   "description": "Explore the conditions we treat — back pain, neck pain, sciatica, sports injuries and more — and the advanced therapies we use at Elite Spine & Sports Care in Paramus, NJ.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/conditions-services",
+   "og": {
+    "og:title": "Conditions We Treat &amp; Services — Elite Spine &amp; Sports Care",
+    "og:description": "Explore the conditions we treat — back pain, neck pain, sciatica, sports injuries — and the advanced therapies we use in Paramus, NJ.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "CollectionPage+BreadcrumbList+MedicalClinic",
+     "hash": "f1636ae74ad2"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "deep-tissue-laser-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Deep Tissue Laser Therapy in Paramus, NJ | Elite Spine",
+   "description": "Deep Tissue Laser Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Therapeutic laser reduces inflammation and accelerates cellular repair deep in the tissue.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/deep-tissue-laser-therapy-paramus-nj",
+   "og": {
+    "og:title": "Deep Tissue Laser Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Deep Tissue Laser Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Therapeutic laser reduces inflammation and accelerates cellular repair deep in the tissue.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "ffd4327c024f"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "dry-needling-paramus-nj.html": {
+   "lang": "en",
+   "title": "Dry Needling in Paramus, NJ | Elite Spine",
+   "description": "Dry Needling in Paramus, NJ at Elite Spine &amp; Sports Care. Thin needles release trigger points and muscle tension to relieve pain and improve mobility.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/dry-needling-paramus-nj",
+   "og": {
+    "og:title": "Dry Needling in Paramus, NJ | Elite Spine",
+    "og:description": "Dry Needling in Paramus, NJ at Elite Spine &amp; Sports Care. Thin needles release trigger points and muscle tension to relieve pain and improve mobility.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "8d6d937631e4"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "graston-technique-paramus-nj.html": {
+   "lang": "en",
+   "title": "Graston Technique in Paramus, NJ | Elite Spine",
+   "description": "Graston Technique in Paramus, NJ at Elite Spine &amp; Sports Care. Instrument-assisted mobilization that breaks down scar tissue and restrictions in soft tissue.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/graston-technique-paramus-nj",
+   "og": {
+    "og:title": "Graston Technique in Paramus, NJ | Elite Spine",
+    "og:description": "Graston Technique in Paramus, NJ at Elite Spine &amp; Sports Care. Instrument-assisted mobilization that breaks down scar tissue and restrictions in soft tissue.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "599a5744ba16"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "hand-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Hand Therapy in Paramus, NJ | Elite Spine",
+   "description": "Hand Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Hand, wrist, and elbow injuries, post-surgical rehab, and repetitive strain that limit grip and daily tasks.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/hand-therapy-paramus-nj",
+   "og": {
+    "og:title": "Hand Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Hand Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Hand, wrist, and elbow injuries, post-surgical rehab, and repetitive strain that limit grip and daily tasks.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "8e9140ac1d3e"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "headache-migraine-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Headache &amp; Migraine Treatment in Paramus, NJ | Elite Spine",
+   "description": "Headache &amp; Migraine Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Tension and cervicogenic headaches rooted in neck alignment, posture, and muscle tension.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/headache-migraine-treatment-paramus-nj",
+   "og": {
+    "og:title": "Headache &amp; Migraine Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Headache &amp; Migraine Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Tension and cervicogenic headaches rooted in neck alignment, posture, and muscle tension.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "ae162839293a"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "herniated-disc-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Herniated Disc Treatment in Paramus, NJ | Elite Spine",
+   "description": "Herniated Disc Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Bulging or herniated discs causing pain, weakness, and limited mobility — without surgery.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/herniated-disc-treatment-paramus-nj",
+   "og": {
+    "og:title": "Herniated Disc Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Herniated Disc Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Bulging or herniated discs causing pain, weakness, and limited mobility — without surgery.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "ff13b86ede04"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "index.html": {
+   "lang": "en",
+   "title": "Physical Therapy & Chiropractic Care | Paramus, NJ",
+   "description": "Premium physical therapy and chiropractic care in Paramus, NJ. Move better, recover stronger. Treating back pain, sciatica, sports injuries and more across Bergen County.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/",
+   "og": {
+    "og:title": "Elite Spine &amp; Sports Care — Paramus, NJ",
+    "og:description": "Premium physical therapy and chiropractic care in Paramus, NJ. Move better, recover stronger — treating back pain, sciatica, sports injuries and more across Bergen County.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalClinic+WebSite+WebPage+FAQPage",
+     "hash": "0dfa70783d6c"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "https://static.wixstatic.com/media/6515c6_7c2af55988694654904e9ceab6a0953a~mv2.jpg/v1/fill/w_800,h_500,al_c,q_85,enc_avif,quality_auto/blog.jpg": "Athlete recovering from injury",
+    "images/chiropractic-care.avif": "Adolescent athlete training",
+    "images/clinic-opt.jpg": "Elite Spine Paramus clinic interior",
+    "images/logo.svg": "Elite Spine & Sports Care",
+    "images/physical-therapy.avif": "Physical therapy session"
+   }
+  },
+  "insurance.html": {
+   "lang": "en",
+   "title": "Insurance — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "Elite Spine & Sports Care in Paramus, NJ accepts most major insurance plans. See accepted providers and coverage options, or let our team verify your benefits before your first visit.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/insurance",
+   "og": {
+    "og:title": "Insurance — Elite Spine &amp; Sports Care | Paramus, NJ",
+    "og:description": "Elite Spine &amp; Sports Care accepts most major insurance plans. See accepted providers or let our team verify your benefits.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "WebPage+BreadcrumbList+MedicalClinic",
+     "hash": "238b41c8f978"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "jessica-jozefiak-otr.html": {
+   "lang": "en",
+   "title": "Jessica Jozefiak, OTR/L | Occupational &amp; Hand Therapist in Paramus, NJ",
+   "description": "Meet Jessica Jozefiak, OTR/L, occupational therapist at Elite Spine &amp; Sports Care of Paramus. Upper-extremity rehabilitation, hand therapy, and everyday independence.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/jessica-jozefiak-otr",
+   "og": {
+    "og:title": "Jessica Jozefiak, OTR/L | Occupational &amp; Hand Therapist in Paramus, NJ",
+    "og:description": "Meet Jessica Jozefiak, OTR/L, occupational therapist at Elite Spine &amp; Sports Care of Paramus. Upper-extremity rehabilitation, hand therapy, and everyday independence.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "Person+ProfilePage+BreadcrumbList+MedicalClinic",
+     "hash": "bc720cd7403d"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care",
+    "images/team-jessica-jozefiak.jpg": "Jessica Jozefiak, OTR/L, at Elite Spine &amp; Sports Care of Paramus"
+   }
+  },
+  "knee-pain-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Knee Pain Treatment in Paramus, NJ | Elite Spine",
+   "description": "Knee Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Ligament and tendon injuries, post-op rehab, and overuse pain that limits walking and sport.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/knee-pain-treatment-paramus-nj",
+   "og": {
+    "og:title": "Knee Pain Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Knee Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Ligament and tendon injuries, post-op rehab, and overuse pain that limits walking and sport.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "1cdc3b5d41a3"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "lower-back-pain-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Lower Back Pain Treatment in Paramus, NJ | Elite Spine",
+   "description": "Lower Back Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Acute and chronic back pain from posture, lifting, disc issues, or muscular imbalance.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/lower-back-pain-treatment-paramus-nj",
+   "og": {
+    "og:title": "Lower Back Pain Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Lower Back Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Acute and chronic back pain from posture, lifting, disc issues, or muscular imbalance.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "779c6d0a7b89"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "massage-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Massage Therapy in Paramus, NJ | Elite Spine",
+   "description": "Massage Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Therapeutic massage to ease tension, improve circulation, and support faster recovery.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/massage-therapy-paramus-nj",
+   "og": {
+    "og:title": "Massage Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Massage Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Therapeutic massage to ease tension, improve circulation, and support faster recovery.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "651bb82ddc16"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "michael-yarish-dpt.html": {
+   "lang": "en",
+   "title": "Dr. Michael Yarish, DPT, GTS, Cert. DN | Physical Therapist in Paramus, NJ",
+   "description": "Meet Dr. Michael Yarish, DPT, owner and clinic director of Elite Spine &amp; Sports Care of Paramus. Graston Technique Specialist, certified in Dry Needling and the McKenzie Method.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/michael-yarish-dpt",
+   "og": {
+    "og:title": "Dr. Michael Yarish, DPT, GTS, Cert. DN | Physical Therapist in Paramus, NJ",
+    "og:description": "Meet Dr. Michael Yarish, DPT, owner and clinic director of Elite Spine &amp; Sports Care of Paramus. Graston Technique Specialist, certified in Dry Needling and the McKenzie Method.",
+    "og:image": "https://www.elitespineparamus.com/images/team-michael-yarish.webp"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "Person+Physician+ProfilePage+BreadcrumbList+MedicalClinic",
+     "hash": "f79bd6be1bfa"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "https://static.wixstatic.com/media/6515c6_5ed27acc026c40bfa11862df5bb06691~mv2.webp/v1/fill/w_700,h_900,al_c,q_85,enc_avif,quality_auto/team.webp": "Dr. Michael Yarish, DPT, at Elite Spine &amp; Sports Care of Paramus",
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "neck-pain-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Neck Pain Treatment in Paramus, NJ | Elite Spine",
+   "description": "Neck Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Stiffness, tech-neck, and pinched nerves that limit your range of motion and disrupt sleep.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/neck-pain-treatment-paramus-nj",
+   "og": {
+    "og:title": "Neck Pain Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Neck Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Stiffness, tech-neck, and pinched nerves that limit your range of motion and disrupt sleep.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "ec1a72b4d6b0"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "pelvic-floor-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Pelvic Floor Therapy in Paramus, NJ | Elite Spine",
+   "description": "Pelvic Floor Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Pelvic pain, incontinence, and pre- and postnatal weakness addressed with private, one-on-one care.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/pelvic-floor-therapy-paramus-nj",
+   "og": {
+    "og:title": "Pelvic Floor Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Pelvic Floor Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Pelvic pain, incontinence, and pre- and postnatal weakness addressed with private, one-on-one care.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "a22965f1f428"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "peptide-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Peptide Therapy in Paramus, NJ | Elite Spine",
+   "description": "Peptide Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Targeted peptide protocols for weight loss, recovery, and repair — full access to any peptide.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/peptide-therapy-paramus-nj",
+   "og": {
+    "og:title": "Peptide Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Peptide Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Targeted peptide protocols for weight loss, recovery, and repair — full access to any peptide.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "118baa1b8b33"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "physical-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Physical Therapy in Paramus, NJ | Elite Spine",
+   "description": "Physical Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Restore movement, rebuild strength, and reduce pain with a progressive, evidence-based program.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/physical-therapy-paramus-nj",
+   "og": {
+    "og:title": "Physical Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Physical Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Restore movement, rebuild strength, and reduce pain with a progressive, evidence-based program.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "f761307d7218"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "pre-post-op-rehab-paramus-nj.html": {
+   "lang": "en",
+   "title": "Pre &amp; Post-Op Rehab in Paramus, NJ | Elite Spine",
+   "description": "Pre &amp; Post-Op Rehab in Paramus, NJ at Elite Spine &amp; Sports Care. Prepare for surgery and rebuild strength, range, and confidence after a procedure.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/pre-post-op-rehab-paramus-nj",
+   "og": {
+    "og:title": "Pre &amp; Post-Op Rehab in Paramus, NJ | Elite Spine",
+    "og:description": "Pre &amp; Post-Op Rehab in Paramus, NJ at Elite Spine &amp; Sports Care. Prepare for surgery and rebuild strength, range, and confidence after a procedure.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "d75ff91fba4c"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "sciatica-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Sciatica Treatment in Paramus, NJ | Elite Spine",
+   "description": "Sciatica Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Radiating leg pain, numbness, and tingling caused by nerve compression along the spine.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/sciatica-treatment-paramus-nj",
+   "og": {
+    "og:title": "Sciatica Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Sciatica Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Radiating leg pain, numbness, and tingling caused by nerve compression along the spine.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "c94656cba3c1"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "shockwave-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Shockwave Therapy in Paramus, NJ | Elite Spine",
+   "description": "Shockwave Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Acoustic pulses break down scar tissue and stimulate healing in stubborn, chronic injuries.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/shockwave-therapy-paramus-nj",
+   "og": {
+    "og:title": "Shockwave Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Shockwave Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Acoustic pulses break down scar tissue and stimulate healing in stubborn, chronic injuries.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "752245411b4f"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "shoulder-pain-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Shoulder Pain Treatment in Paramus, NJ | Elite Spine",
+   "description": "Shoulder Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Rotator cuff issues, impingement, and stiffness that limit overhead movement and strength.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/shoulder-pain-treatment-paramus-nj",
+   "og": {
+    "og:title": "Shoulder Pain Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Shoulder Pain Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Rotator cuff issues, impingement, and stiffness that limit overhead movement and strength.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "2cac6cbb73e0"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "sports-injury-treatment-paramus-nj.html": {
+   "lang": "en",
+   "title": "Sports Injury Treatment in Paramus, NJ | Elite Spine",
+   "description": "Sports Injury Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Sprains, strains, tendinopathies, and return-to-sport rehab for athletes at every level.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/sports-injury-treatment-paramus-nj",
+   "og": {
+    "og:title": "Sports Injury Treatment in Paramus, NJ | Elite Spine",
+    "og:description": "Sports Injury Treatment in Paramus, NJ at Elite Spine &amp; Sports Care. Sprains, strains, tendinopathies, and return-to-sport rehab for athletes at every level.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "9aa1f89c78c4"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "team.html": {
+   "lang": "en",
+   "title": "Our Team — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "Meet the licensed physical therapists, chiropractors, and care team at Elite Spine & Sports Care in Paramus, NJ — the people helping you move better and recover stronger.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/team",
+   "og": {
+    "og:title": "Our Team — Elite Spine &amp; Sports Care | Paramus, NJ",
+    "og:description": "Meet the licensed physical therapists, chiropractors, and care team helping you move better and recover stronger.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalClinic+AboutPage+BreadcrumbList",
+     "hash": "45e4004dd1f2"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "https://static.wixstatic.com/media/6515c6_5ed27acc026c40bfa11862df5bb06691~mv2.webp/v1/fill/w_500,h_640,al_c,q_85,enc_avif,quality_auto/team.webp": "Dr. Michael Yarish, DPT",
+    "images/logo.svg": "Elite Spine & Sports Care",
+    "images/team-cole-demagistris.jpg": "Cole DeMagistris, physical therapy aide",
+    "images/team-jessica-jozefiak.jpg": "Jessica Jozefiak, OTR/L, occupational therapist",
+    "images/team-joseph-strobino.jpeg": "Joseph Strobino"
+   }
+  },
+  "testosterone-replacement-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Testosterone Replacement Therapy in Paramus, NJ | Elite Spine",
+   "description": "Testosterone Replacement Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Physician-guided hormone optimization to restore energy, strength, focus, and drive.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/testosterone-replacement-therapy-paramus-nj",
+   "og": {
+    "og:title": "Testosterone Replacement Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Testosterone Replacement Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Physician-guided hormone optimization to restore energy, strength, focus, and drive.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "4d653acbdecb"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "thank-you.html": {
+   "lang": "en",
+   "title": "Thank You — Elite Spine & Sports Care | Paramus, NJ",
+   "description": "Thank you — your request has been received. The Elite Spine & Sports Care team in Paramus, NJ will reach out within one business day.",
+   "robots": "noindex, follow",
+   "canonical": "https://www.elitespineparamus.com/thank-you",
+   "og": {
+    "og:title": "Thank You — Elite Spine &amp; Sports Care",
+    "og:description": "Your request has been received. Our Paramus team will be in touch within one business day.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "vein-screening-procedures-paramus-nj.html": {
+   "lang": "en",
+   "title": "Vein Screening &amp; Procedures in Paramus, NJ | Elite Spine",
+   "description": "Vein Screening &amp; Procedures in Paramus, NJ at Elite Spine &amp; Sports Care. Screening and minimally-invasive treatment for varicose and spider veins to restore healthy circulation.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/vein-screening-procedures-paramus-nj",
+   "og": {
+    "og:title": "Vein Screening &amp; Procedures in Paramus, NJ | Elite Spine",
+    "og:description": "Vein Screening &amp; Procedures in Paramus, NJ at Elite Spine &amp; Sports Care. Screening and minimally-invasive treatment for varicose and spider veins to restore healthy circulation.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "923bf3d9b7c0"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  },
+  "vestibular-therapy-paramus-nj.html": {
+   "lang": "en",
+   "title": "Vestibular Therapy in Paramus, NJ | Elite Spine",
+   "description": "Vestibular Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Dizziness, vertigo, and balance problems treated with targeted exercises that retrain the inner ear and brain.",
+   "robots": "",
+   "canonical": "https://www.elitespineparamus.com/vestibular-therapy-paramus-nj",
+   "og": {
+    "og:title": "Vestibular Therapy in Paramus, NJ | Elite Spine",
+    "og:description": "Vestibular Therapy in Paramus, NJ at Elite Spine &amp; Sports Care. Dizziness, vertigo, and balance problems treated with targeted exercises that retrain the inner ear and brain.",
+    "og:image": "https://www.elitespineparamus.com/images/og-image.jpg"
+   },
+   "verify": {
+    "google-site-verification": "8lYpyjeTP9PN6SSEVPgpGxMnnZLZaZc24PoN8dbayUo"
+   },
+   "schema": [
+    {
+     "types": "MedicalWebPage+BreadcrumbList+MedicalClinic",
+     "hash": "ea689d8db7c0"
+    }
+   ],
+   "tags": [
+    "AW-11509815924",
+    "G-5Z262J5YXZ"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "images/logo.svg": "Elite Spine & Sports Care"
+   }
+  }
+ },
+ "files": {
+  "404.html": true,
+  "_headers": true,
+  "_redirects": true,
+  "llms.txt": true,
+  "robots.txt": true,
+  "sitemap.xml": true
+ },
+ "tagFiles": {},
+ "robots": [
+  "User-agent: *",
+  "Allow: /",
+  "Disallow: /admin/",
+  "Disallow: /api/",
+  "Sitemap: https://www.elitespineparamus.com/sitemap.xml"
+ ],
+ "redirects": [
+  "/thankyou /thank-you 301",
+  "/services /conditions-services#services 301",
+  "/physical-therapy /physical-therapy-paramus-nj 301",
+  "/chiropractic-care /chiropractic-care-paramus-nj 301",
+  "/extracorporeal-shockwave-therapy /shockwave-therapy-paramus-nj 301",
+  "/active-release-technique-art /active-release-technique-paramus-nj 301",
+  "/copy-of-pre-post-operation /dry-needling-paramus-nj 301",
+  "/pre-post-operation /pre-post-op-rehab-paramus-nj 301",
+  "/pre-post-natal-care /conditions-services#services 301",
+  "/deep-tissue-laser-therapy /deep-tissue-laser-therapy-paramus-nj 301",
+  "/graston-technique /graston-technique-paramus-nj 301",
+  "/massage-therapy /massage-therapy-paramus-nj 301",
+  "/therapeutic-taping /conditions-services#services 301",
+  "/occupational-therapy /hand-therapy-paramus-nj 301",
+  "/about-us /#about 301",
+  "/our-team /team 301",
+  "/our-session /#resources 301",
+  "/our-location /#contact 301",
+  "/contact-us-1 /#contact 301",
+  "/free-consultation /#request 301",
+  "/post/* /blog 301"
+ ],
+ "headers": [
+  "/admin/*",
+  "X-Robots-Tag: noindex, nofollow",
+  "X-Frame-Options: DENY",
+  "Referrer-Policy: no-referrer",
+  "Cache-Control: no-store",
+  "Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+  "/api/*",
+  "X-Robots-Tag: noindex, nofollow"
+ ],
+ "sitemap": [
+  "https://www.elitespineparamus.com/",
+  "https://www.elitespineparamus.com/active-release-technique-paramus-nj",
+  "https://www.elitespineparamus.com/blog",
+  "https://www.elitespineparamus.com/chiropractic-care-paramus-nj",
+  "https://www.elitespineparamus.com/conditions-services",
+  "https://www.elitespineparamus.com/deep-tissue-laser-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/dry-needling-paramus-nj",
+  "https://www.elitespineparamus.com/graston-technique-paramus-nj",
+  "https://www.elitespineparamus.com/hand-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/headache-migraine-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/herniated-disc-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/insurance",
+  "https://www.elitespineparamus.com/jessica-jozefiak-otr",
+  "https://www.elitespineparamus.com/knee-pain-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/lower-back-pain-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/massage-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/michael-yarish-dpt",
+  "https://www.elitespineparamus.com/neck-pain-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/pelvic-floor-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/peptide-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/physical-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/pre-post-op-rehab-paramus-nj",
+  "https://www.elitespineparamus.com/sciatica-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/shockwave-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/shoulder-pain-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/sports-injury-treatment-paramus-nj",
+  "https://www.elitespineparamus.com/team",
+  "https://www.elitespineparamus.com/testosterone-replacement-therapy-paramus-nj",
+  "https://www.elitespineparamus.com/vein-screening-procedures-paramus-nj",
+  "https://www.elitespineparamus.com/vestibular-therapy-paramus-nj"
+ ]
+}
